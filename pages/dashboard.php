@@ -18,10 +18,10 @@ if (!isset($_SESSION['admin'])) {
 require_perm('dashboard.view');
 ?>
 <!DOCTYPE html>
-// edited by me 10/5/2026 to add the dashboard view and links to other pages based on permissions 
+<!-- edited by me 10/5/2026 to add the dashboard view and links to other pages based on permissions 
 // added new page Users 
 // added Admin profile with permissions list
-// added new information to session on login to be used in dashboard and profile pages
+// added new information to session on login to be used in dashboard and profile pages -->
 <html lang='en'>
 <html>
 
