@@ -19,12 +19,6 @@ if (isset($_POST['login'])) {
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    // echo "<pre>";
-    // var_dump($email);
-    // var_dump($user);
-    // die("</pre>");
-
-
     if (!$user) {
         $error = "Email or Password are incorrect";
     } elseif ((int)$user['is_active'] !== 1) {
@@ -32,9 +26,11 @@ if (isset($_POST['login'])) {
     } elseif (!password_verify($password, $user['password_hash'])) {
         $error = "Email or Password are incorrect";
     } else {
-
+        // added new information 10/5/2026
+        $_SESSION['admin'] = true;
         $_SESSION['admin_id'] = (int)$user['id'];
-        $_SESSION['admin'] = $user['email'];
+        $_SESSION['admin_name'] = $user['full_name'];
+        $_SESSION['admin_email'] = $user['email'];
         $_SESSION['admin_role'] = $user['role'];
 
         if (($user['role'] ?? '') === 'super_admin') {
