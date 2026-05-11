@@ -78,8 +78,6 @@ if (isset($_POST['login'])) {
     </div>
 
     <div class="right-panel">
-    </div>
-    <div class="right-panel">
         <div class="form-box">
             <h2>Hello Again!</h2>
             <p class="sub">Welcome Back</p>
