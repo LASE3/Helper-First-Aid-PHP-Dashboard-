@@ -1,0 +1,185 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background-color: #cfe1f3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-wrapper {
+    width: 1180px;
+    height: 590px;
+    display: flex;
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    background-color: white;
+}
+
+/* LEFT PANEL — blue gradient side */
+.left-panel {
+    width: 55%;                        
+    background: linear-gradient(160deg, #0b7df0, #071b82);
+    color: white;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    padding-left: 80px;                
+    padding-right: 60px;               
+}
+
+.left-panel h1 {
+    font-size: 32px;
+    margin: 0 0 10px;
+    font-weight: 700;
+}
+
+.left-panel p {
+    font-size: 15px;
+    margin: 0 0 28px;
+    opacity: 0.85;
+}
+
+.read-more {
+    width: 110px;
+    height: 36px;
+    padding: 10px 18px;
+    border-radius: 25px;
+    border: none;
+    background: #168cf5;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.read-more:hover {
+    background: #0f7de0;
+}
+
+/* Decorative circles */
+.circle {
+    position: absolute;
+    width: 380px;
+    height: 380px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    bottom: -170px;
+    left: -120px;
+    pointer-events: none;
+}
+
+.circle.two {
+    width: 460px;
+    height: 460px;
+    bottom: -230px;
+    left: -80px;
+}
+
+/* RIGHT PANEL — white form side */
+.right-panel {
+    width: 40%;                        
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;                  
+}
+.form-box {
+    width: 100%;
+    max-width: 280px;
+    margin-right: 100px;
+}
+.form-box h2 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    color: #222;
+    font-weight: 700;
+}
+
+.form-box .sub {
+    margin: 0 0 32px;
+    color: #666;
+    font-size: 14px;
+}
+
+.input-wrap {
+    width: 100%;
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.input-wrap span {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #aaa;
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.input-wrap input {
+    width: 100%;
+    padding: 13px 16px 13px 42px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
+    outline: none;
+    color: #333;
+    font-size: 14px;
+    background: #fafafa;
+    transition: border-color 0.2s;
+}
+
+.input-wrap input:focus {
+    border-color: #0f82ee;
+    background: white;
+}
+
+.input-wrap input::placeholder {
+    color: #bfbfbf;
+}
+
+button.login-btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 10px;
+    border: none;
+    background: #0f82ee;
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+}
+
+button.login-btn:hover {
+    background: #0a6fd4;
+}
+
+.forgot {
+    display: block;
+    margin-top: 16px;
+    text-align: center;
+    color: #888;
+    text-decoration: none;
+    font-size: 13px;
+}
+
+.forgot:hover {
+    color: #0f82ee;
+}
+
+.err {
+    color: red;
+    margin-bottom: 14px;
+    font-size: 13px;
+}

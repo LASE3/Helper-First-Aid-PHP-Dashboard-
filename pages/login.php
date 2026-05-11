@@ -15,7 +15,7 @@ if (isset($_POST['login'])) {
     $email = strtolower(trim($_POST['email'] ?? ''));
     $password = trim($_POST['password'] ?? '');
 
-    $stmt = $pdo->prepare("SELECT id, email, password_hash, is_active, role FROM admin_users WHERE email = ? LIMIT 1");
+    $stmt = $pdo->prepare("SELECT id, full_name, email, password_hash, is_active, role FROM admin_users WHERE email = ? LIMIT 1");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -57,59 +57,51 @@ if (isset($_POST['login'])) {
 }
 ?>
 <!DOCTYPE html>
-<html>
-
+<html lang='en'>
 <head>
     <meta charset="UTF-8">
     <title>Admin Login</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f4f4
-        }
-
-        .card {
-            width: 360px;
-            margin: 100px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 10px
-        }
-
-        input {
-            width: 100%;
-            padding: 10px;
-            margin: 8px 0
-        }
-
-        button {
-            width: 100%;
-            padding: 10px;
-            background: blue;
-            color: white;
-            border: none;
-            cursor: pointer
-        }
-
-        .err {
-            color: red
-        }
-    </style>
+    <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 
 <body>
-    <div class="card">
-        <h2>Admin Login</h2>
-        <?php if (!empty($error)): ?>
-            <p class="err"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
-        <form method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit" name="login" value="1">Login</button>
+    <div class="login-wrapper">
+       <div class="login-wrapper">
 
-        </form>
+    <div class="left-panel">
+        <h1>Admin Login</h1>
+        <p>The main Dashboard for Helper:First Aid</p>
+    <!--    <button class="read-more" type="button">Read More</button> -->
+
+        <div class="circle"></div>
+        <div class="circle two"></div>
+    </div>
+
+    <div class="right-panel">
+    </div>
+    <div class="right-panel">
+        <div class="form-box">
+            <h2>Hello Again!</h2>
+            <p class="sub">Welcome Back</p>
+
+            <?php if(!empty($error)): ?>
+                <div class="err"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+
+            <form method="POST">
+                <div class="input-wrap">
+                    <span>✉</span>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                </div>
+                <div class="input-wrap">
+                    <span>🔒</span>
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                <button class="login-btn" type="submit" name="login" value="1">Login</button>
+
+                <a class="forgot" href="#">Forgot Password?</a>
+            </form>
+        </div>
     </div>
 </body>
-
 </html>
