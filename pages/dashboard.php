@@ -28,6 +28,7 @@ require_perm('dashboard.view');
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+    <link rel="stylesheet" href="assets/css/dashboard.css">
 
 <div style="padding:10px; background:#f4f4f4; margin-bottom:15px;">
     Signed in as:
@@ -38,7 +39,7 @@ require_perm('dashboard.view');
     |
     <a href="admin_profile.php">My Profile</a>
     |
-    <a href="logout.php">Logout</a>
+    <a href="logout.php" target="_top" style="color:black; text-decoration:none;">Logout</a>
 </div>
 
 </head>
