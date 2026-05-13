@@ -55,6 +55,7 @@ $hasErrors = false;
 
 $sql = "
     INSERT INTO incidents (
+        local_id,
         device_id,
         occurred_at,
         synced_at,
@@ -69,6 +70,7 @@ $sql = "
         location_source,
         notes
     ) VALUES (
+        :local_id,
         :device_id,
         :occurred_at,
         NOW(),
@@ -83,7 +85,18 @@ $sql = "
         :location_source,
         :notes
     )
-        ON DUPLICATE KEY UPDATE id = LAST_INSERT_ID(id)
+       ON DUPLICATE KEY UPDATE
+          id = LAST_INSERT_ID(id),
+          synced_at = NOW(),
+          input_text = VALUES(input_text),
+          category_code = VALUES(category_code),
+          urgency_level = VALUES(urgency_level),
+          confidence = VALUES(confidence),
+          manual_override = VALUES(manual_override),
+          lat = VALUES(lat),
+          lng = VALUES(lng),
+          location_source = VALUES(location_source),
+          notes = VALUES(notes)
 ";
 
 $stmt = $pdo->prepare($sql);
@@ -91,6 +104,7 @@ $stmt = $pdo->prepare($sql);
 foreach ($incidents as $index => $incident) {
     $errors = [];
 
+    $localId = $incident['local_id'] ?? null;
     $deviceId = trim((string)($incident['device_id'] ?? ''));
     $occurredAt = trim((string)($incident['occurred_at'] ?? ''));
     $lang = trim((string)($incident['lang'] ?? ''));
@@ -106,6 +120,10 @@ foreach ($incidents as $index => $incident) {
 
     if ($deviceId === '') {
         $errors[] = 'device_id is required';
+    }
+
+    if ($localId === null || $localId === '' || !is_numeric($localId)) {
+    $errors[] = 'local_id is required and must be numeric';
     }
 
     if ($occurredAt === '') {
@@ -144,22 +162,16 @@ foreach ($incidents as $index => $incident) {
         $hasErrors = true;
         $results[] = [
             'client_index' => $index,
-            'status' => 'error',
-            'errors' => $errors
+            'local_id' => (int)$localId,
+            'status' => 'synced',
+            'server_id' => (int)$pdo->lastInsertId()
         ];
         continue;
     }
 
-    if (
-        empty($inc['device_id']) ||
-        empty($inc['occurred_at']) ||
-        empty($inc['category_code'])
-    ) {
-    continue;
-    }
-
     try {
         $stmt->execute([
+            ':local_id' => (int)$localId,
             ':device_id' => $deviceId,
             ':occurred_at' => $occurredAt,
             ':lang' => $lang,
@@ -171,7 +183,7 @@ foreach ($incidents as $index => $incident) {
             ':lat' => $lat !== null && $lat !== '' ? $lat : null,
             ':lng' => $lng !== null && $lng !== '' ? $lng : null,
             ':location_source' => $locationSource !== '' ? $locationSource : null,
-            ':notes' => $notes !== '' ? $notes : null,
+            ':notes' => $notes !== '' ? $notes : null      
         ]);
 
         $results[] = [

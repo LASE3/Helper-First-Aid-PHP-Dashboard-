@@ -13,24 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$stmt = $pdo->query("
-    SELECT 
-        s.id,
-        s.description,
-        s.step_number,
-        s.image,
-        c.name_en AS category
-    FROM steps s
-    LEFT JOIN categories c ON s.category_id = c.id
-    ORDER BY s.category_id, s.step_number
-");
-
-$steps = $stmt->fetchAll();
-
-echo json_encode([
-    "steps" => $steps
-]);
-
 try {
     $stmt = $pdo->query("
         SELECT 

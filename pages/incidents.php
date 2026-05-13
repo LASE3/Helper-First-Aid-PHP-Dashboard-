@@ -20,67 +20,10 @@ $error = "";
 
 /*
 |--------------------------------------------------------------------------
-| Add Incident
-|--------------------------------------------------------------------------
-*/
-if (isset($_POST['add'])) {
-    $categoryCode = trim($_POST['category_code'] ?? '');
-    $desc = trim($_POST['description'] ?? '');
-    $location = trim($_POST['location'] ?? '');
-    $status = trim($_POST['status'] ?? 'new');
-    $urgency = trim($_POST['urgency'] ?? '');
-
-    if ($categoryCode === '' || $desc === '') {
-        $error = "Category and description are required.";
-    } else {
-        $image_name = "";
-
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-            $uploadDir = __DIR__ . '/../uploads/incidents/';
-
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
-            }
-
-            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
-
-            if (in_array($ext, $allowed, true)) {
-                $image_name = uniqid('incident_', true) . "." . $ext;
-                move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $image_name);
-            } else {
-                $error = "Invalid image type. Allowed: jpg, jpeg, png, gif, webp.";
-            }
-        }
-
-        if ($error === "") {
-                $stmt = $pdo->prepare("
-                    INSERT INTO incidents 
-                    (category_code, description, location, image, status, urgency)
-                    VALUES 
-                    (:category_code, :description, :location, :image, :status, :urgency)
-                ");
-
-                $stmt->execute([
-                    ':category_code' => $categoryCode,
-                    ':description' => $desc,
-                    ':location' => $location,
-                    ':image' => $image_name,
-                    ':status' => $status,
-                    ':urgency' => $urgency,
-                ]);
-
-            $message = "Incident added successfully.";
-        }
-    }
-}
-/*
-|--------------------------------------------------------------------------
 | Filters
 |--------------------------------------------------------------------------
 */
 $filterCategory = trim($_GET['category'] ?? '');
-$filterStatus = trim($_GET['status'] ?? '');
 $filterStartDate = trim($_GET['start_date'] ?? '');
 $filterUrgency = trim($_GET['urgency'] ?? '');
 $filterEndDate = trim($_GET['end_date'] ?? '');
@@ -101,10 +44,13 @@ $categories = $catStmt->fetchAll();
 $sql = "
     SELECT 
         incidents.*,
-        categories.name_en AS category_name
+        categories.name_en AS category_name,
+        app_users.full_name AS patient_name
     FROM incidents
     LEFT JOIN categories 
         ON incidents.category_code = categories.CODE
+    LEFT JOIN app_users
+        ON incidents.device_id = app_users.device_id
     WHERE 1=1
 ";
 
@@ -115,31 +61,46 @@ if ($filterCategory !== '') {
     $params[':category'] = $filterCategory;
 }
 
-if ($filterStatus !== '') {
-    $sql .= " AND incidents.status = :status";
-    $params[':status'] = $filterStatus;
-}
-
 if ($filterUrgency !== '') {
-    $sql .= " AND incidents.urgency = :urgency";
+    $sql .= " AND incidents.urgency_level = :urgency";
     $params[':urgency'] = $filterUrgency;
 }
 
 if ($filterStartDate !== '') {
-    $sql .= " AND DATE(incidents.created_at) >= :start_date";
+    $sql .= " AND DATE(incidents.occurred_at) >= :start_date";
     $params[':start_date'] = $filterStartDate;
 }
 
 if ($filterEndDate !== '') {
-    $sql .= " AND DATE(incidents.created_at) <= :end_date";
+    $sql .= " AND DATE(incidents.occurred_at) <= :end_date";
     $params[':end_date'] = $filterEndDate;
 }
 
-$sql .= " ORDER BY incidents.created_at DESC";
+$sql .= " ORDER BY incidents.occurred_at DESC";
 
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $incidents = $stmt->fetchAll();
+
+$incidentImages =[];
+
+if(count($incidents) > 0){
+    $incidentIds = array_column($incidents, 'id');
+    $placeholders = implode(',', array_fill(0, count($incidentIds), '?'));
+
+    $imgStmt = $pdo->prepare("
+        SELECT incident_id, image_path 
+        FROM incident_images 
+        WHERE incident_id IN ($placeholders)
+    ");
+
+    $imgStmt->execute($incidentIds);
+    $images = $imgStmt->fetchAll();
+
+    foreach($images as $img){
+        $incidentImages[(int)$img['incident_id']][] = $img['image_path'];
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -265,15 +226,6 @@ $incidents = $stmt->fetchAll();
         </div>
 
         <div>
-            <label>Status</label>
-            <select name="status">
-                <option value="">All Status</option>
-                <option value="new" <?= $filterStatus === 'new' ? 'selected' : '' ?>>New</option>
-                <option value="reviewed" <?= $filterStatus === 'reviewed' ? 'selected' : '' ?>>Reviewed</option>
-                <option value="resolved" <?= $filterStatus === 'resolved' ? 'selected' : '' ?>>Resolved</option>
-            </select>
-        </div>
-        <div>
             <label>Urgency</label>
             <select name="urgency">
                 <option value="">All Urgency</option>
@@ -301,93 +253,76 @@ $incidents = $stmt->fetchAll();
 
 <hr>
 
-<h3>Add Incident</h3>
-<form method="POST" enctype="multipart/form-data">
-    <div class="add-form-row">
-        <div>
-            <label>Category</label>
-            <select name="category_code" required>
-                <option value="">Select Category</option>
-                <?php foreach ($categories as $c): ?>
-                    <option value="<?= htmlspecialchars((string)$c['CODE']) ?>">
-                        <?= htmlspecialchars((string)$c['name_en']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-
-        <div>
-            <label>Status</label>
-            <select name="status">
-                <option value="new">New</option>
-                <option value="reviewed">Reviewed</option>
-                <option value="resolved">Resolved</option>
-            </select>
-        </div>
-        <div>
-            <label>Urgency</label>
-            <select name="urgency">
-            <option value="low">Low</option>
-            <option value="medium">Medium</option>
-            <option value="high">High</option>
-            </select>                
-        </div> 
-        <div>
-            <label>Location</label>
-            <input type="text" name="location" placeholder="Location">
-        </div>
-
-        <div>
-            <label>Image</label>
-            <input type="file" name="image">
-        </div>
-    </div>
-
-    <div>
-        <label>Description</label>
-        <textarea name="description" placeholder="Description" required></textarea>
-    </div>
-
-    <button type="submit" name="add" class="small-btn">Add Incident</button>
-</form>
-
-<hr>
+<a href="export_incidents.php" class="small-btn">Export CSV</a>
 
 <h3>Incidents List</h3>
 <table>
-    <tr>
-        <th>ID</th>
-        <th>Category</th>
-        <th>Description</th>
-        <th>Location</th>
-        <th>Image</th>
-        <th>Status</th>
-        <th>Urgency</th>
-        <th>Date</th>
-    </tr>
+<tr>
+    <th>ID</th>
+    <th>Device ID</th>
+    <th>Patient</th>
+    <th>Category</th>
+    <th>Urgency</th>
+    <th>Confidence</th>
+    <th>Action</th>
+    <th>Input Text</th>
+    <th>Location</th>
+    <th>Images</th>
+    <th>Date</th>
+    <th>Manual Override</th>
+    <th>Language</th>
+    
+</tr>
 
     <?php if (count($incidents) > 0): ?>
         <?php foreach ($incidents as $row): ?>
-            <tr>
-                <td><?= htmlspecialchars((string)$row['id']) ?></td>
-                <td><?= htmlspecialchars((string)($row['category_name'] ?? 'Unknown')) ?></td>
-                <td><?= htmlspecialchars((string)$row['description']) ?></td>
-                <td><?= htmlspecialchars((string)$row['location']) ?></td>
-                <td>
-                    <?php if (!empty($row['image'])): ?>
-                        <img src="../uploads/incidents/<?= htmlspecialchars((string)$row['image']) ?>" width="70" alt="incident image">
-                    <?php else: ?>
-                        No Image
-                    <?php endif; ?>
-                </td>
-                <td><?= htmlspecialchars((string)$row['status']) ?></td>
-                <td><?= htmlspecialchars((string) $row['urgency']) ?></td>
-                <td><?= htmlspecialchars((string)$row['created_at']) ?></td>
-            </tr>
+           <tr>
+    <td><?= htmlspecialchars((string)$row['id']) ?></td>
+    <td><?= htmlspecialchars((string)($row['device_id'] ?? '')) ?></td>
+    <td><?= htmlspecialchars((string)($row['patient_name'] ?? '')) ?></td>
+    <td><?= htmlspecialchars((string)($row['category_name'] ?? $row['category_code'] ?? '')) ?></td>
+    <td><?= htmlspecialchars((string)($row['urgency_level'] ?? '')) ?></td>
+    <td>
+       <?= $row['confidence'] !== null 
+             ? htmlspecialchars(number_format((float)$row['confidence'], 2))
+             : 'N/A' ?>
+    </td>
+    <td><?= htmlspecialchars((string)($row['input_text'] ?? '')) ?></td>
+    <td>
+        <?php if (!empty($row['lat']) && !empty($row['lng'])): ?>
+            <a target="_blank" href="https://www.google.com/maps?q=<?= htmlspecialchars((string)$row['lat']) ?>,<?= htmlspecialchars((string)$row['lng']) ?>">
+                Open Map
+            </a>
+        <?php else: ?>
+            No Location
+        <?php endif; ?>
+    </td>
+    <td>
+        <?php
+        $rowImages = $incidentImages[(int)$row['id']] ?? [];
+        ?>
+
+        <?php if (count($rowImages) > 0): ?>
+            <?php foreach ($rowImages as $imagePath): ?>
+                <img src="../<?= htmlspecialchars((string)$imagePath) ?>" width="70" alt="incident image">
+            <?php endforeach; ?>
+        <?php else: ?>
+            No Image
+        <?php endif; ?>
+    </td>
+    <td><?= htmlspecialchars((string)($row['occurred_at'] ?? '')) ?></td>
+    <td><?= ((int)($row['manual_override'] ?? 0) === 1) ?></td>
+    <td><?= htmlspecialchars((string)($row['lang'] ?? '')) ?></td>
+    <td>
+    <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>">
+        View
+    </a>
+</td>
+</tr>
         <?php endforeach; ?>
     <?php else: ?>
         <tr>
-            <td colspan="7">No incidents found.</td>
+            <td colspan="13">No incidents found.</td>
         </tr>
     <?php endif; ?>
 </table>
@@ -395,5 +330,5 @@ $incidents = $stmt->fetchAll();
 <br>
 <a href="dashboard.php">Back</a>
 
-</body>
+    </body>
 </html>

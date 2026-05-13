@@ -38,11 +38,13 @@ if($deviceId === ''){
 $fullName = trim((string)($data['full_name'] ?? ''));
 // $email = trim((string)($data['email'] ?? ''));
 $sex = trim((string)($data['sex'] ?? ''));
+$bloodType = trim((string)($data['blood_type'] ?? ''));
+$allergies = trim((string)($data['allergies'] ?? ''));
 $age = (int)($data['age'] ?? 0);
 $conditions = trim((string)($data['conditions'] ?? ''));
 $medications = trim((string)($data['medications'] ?? ''));
 $notes = trim((string)($data['notes'] ?? ''));
-$contacts = trim((string)($data['contacts'] ?? ''));
+$contacts = $data['contacts'] ?? [];
 
 if(!is_array($contacts)){
     $contacts = [];
@@ -51,15 +53,19 @@ if(!is_array($contacts)){
 $pdo->beginTransaction();
 
 $stmt = $pdo->prepare("
-    INSERT INTO app_users (device_id, full_name, sex, age, conditions, medications, notes)
-    VALUES (:device_id, :full_name, :sex, :age, :conditions, :medications, :notes)
+    INSERT INTO app_users 
+        (device_id, full_name, sex, age, blood_type, allergies, conditions, medications, notes)
+    VALUES 
+        (:device_id, :full_name, :sex, :age, :blood_type, :allergies, :conditions, :medications, :notes)
     ON DUPLICATE KEY UPDATE
         full_name = VALUES(full_name),
         age = VALUES(age),
         sex = VALUES(sex),
+        blood_type = VALUES(blood_type),
+        allergies = VALUES(allergies),
         conditions = VALUES(conditions),
         medications = VALUES(medications),
-        notes = VALUES(notes)
+        notes = VALUES(notes),
         updated_at = CURRENT_TIMESTAMP
 ");    
 $stmt->execute([
@@ -67,6 +73,8 @@ $stmt->execute([
     ':full_name' => $fullName,
     ':sex' => $sex,
     ':age' => $age,
+    ':blood_type' => $bloodType,
+    ':allergies' => $allergies,
     ':conditions' => $conditions,
     ':medications' => $medications,
     ':notes' => $notes

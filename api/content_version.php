@@ -13,13 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$stmt = $pdo->query("SELECT content_version FROM content_meta WHERE id = 1");
-$data = $stmt->fetch();
-
-echo json_encode([
-    "version" => (int)$data['content_version']
-]);
-
 try {
     $stmt = $pdo->query("SELECT content_version, updated_at FROM content_meta WHERE id = 1");
     $data = $stmt->fetch();
