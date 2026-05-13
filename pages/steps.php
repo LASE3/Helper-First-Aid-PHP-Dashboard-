@@ -4,6 +4,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/guards.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/audit_helper.php';
+require_once __DIR__ . '/content_version_helper.php';
 
 require_perm('steps.view');
 
@@ -39,16 +40,14 @@ if ((int)$checkMeta['total'] === 0) {
 |--------------------------------------------------------------------------
 */
 if (isset($_POST['update_version'])) {
-    $updateVersionStmt = $pdo->prepare("
-        UPDATE content_meta 
-        SET content_version = content_version + 1 
-        WHERE id = 1
-    ");
-    $updateVersionStmt->execute();
+    bump_content_version(
+        $pdo,
+        $_SESSION['admin_id'] ?? null,
+        'Manual content version update'
+    );
 
     $message = "Content version updated successfully.";
 }
-
 /*
 |--------------------------------------------------------------------------
 | Add Step
@@ -56,11 +55,12 @@ if (isset($_POST['update_version'])) {
 */
 if (isset($_POST['add'])) {
     $categoryID = trim($_POST['category_id'] ?? '');
-    $desc = trim($_POST['description'] ?? '');
+    $bodyEn = trim($_POST['body_en'] ?? '');
+    $bodyAr = trim($_POST['body_ar'] ?? '');
     $stepNumber = trim($_POST['step_number'] ?? '');
 
-    if ($categoryID === '' || $desc === '' || $stepNumber === '') {
-        $error = "Category, description, and step number are required.";
+    if ($categoryID === '' || $bodyEn === '' || $bodyAr === '' || $stepNumber === '') {
+        $error = "Category, step number, English body, and Arabic body are required.";
     }
     elseif (!ctype_digit($categoryID) || !ctype_digit($stepNumber)) {
         $error = "Category and step number must be valid numbers.";
@@ -87,15 +87,58 @@ if (isset($_POST['add'])) {
 
         if ($error === "") {
             $stmt = $pdo->prepare("
-                INSERT INTO steps (category_id, description, image, step_number)
-                VALUES (:category_id, :description, :image, :step_number)
+                INSERT INTO guidance_steps 
+                (
+                    category_id,
+                    category_code,
+                    step_no,
+                    title_en,
+                    title_ar,
+                    body_en,
+                    body_ar,
+                    warning_en,
+                    warning_ar,
+                    image_path,
+                    is_active
+                )
+                VALUES
+                (
+                    :category_id,
+                    :category_code,
+                    :step_no,
+                    :title_en,
+                    :title_ar,
+                    :body_en,
+                    :body_ar,
+                    :warning_en,
+                    :warning_ar,
+                    :image_path,
+                    :is_active
+                )
             ");
+
+            $catCodeStmt = $pdo->prepare("
+                 SELECT code 
+                 FROM categories 
+                 WHERE id = ?
+             ");
+
+            $catCodeStmt->execute([(int)$categoryID]);
+
+            $categoryCode = $catCodeStmt->fetchColumn();
             
             $stmt->execute([
                 ':category_id' => (int)$categoryID,
-                ':description' => $desc,
-                ':image' => $image_name,
-                ':step_number' => (int)$stepNumber,
+                ':category_code' => $categoryCode,
+                ':step_no' => (int)$stepNumber,
+                ':title_en' => trim($_POST['title_en'] ?? ''),
+                ':title_ar' => trim($_POST['title_ar'] ?? ''),
+                ':body_en' => trim($_POST['body_en'] ?? ''),
+                ':body_ar' => trim($_POST['body_ar'] ?? ''),
+                ':warning_en' => trim($_POST['warning_en'] ?? ''),
+                ':warning_ar' => trim($_POST['warning_ar'] ?? ''),
+                ':image_path' => $image_name,
+                ':is_active' => isset($_POST['is_active']) ? 1 : 0
             ]);
 
             $newStepId = (int)$pdo->lastInsertId();    
@@ -107,12 +150,11 @@ if (isset($_POST['add'])) {
                     'Admin added a new step'
             );
 
-            $updateVersionStmt = $pdo->prepare("
-                UPDATE content_meta 
-                SET content_version = content_version + 1 
-                WHERE id = 1
-            ");
-            $updateVersionStmt->execute();
+            bump_content_version(
+                $pdo,
+                $_SESSION['admin_id'] ?? null,
+                'Admin added a new guidance step'
+            );
 
             $message = "Step added successfully, and content version updated.";
         }
@@ -137,7 +179,7 @@ $contentMeta = $metaStmt->fetch();
 |--------------------------------------------------------------------------
 */
 $catStmt = $pdo->prepare("
-    SELECT id, name_en 
+    SELECT id, code, name_en 
     FROM categories 
     ORDER BY name_en ASC
 ");
@@ -151,12 +193,12 @@ $categories = $catStmt->fetchAll();
 */
 $stmt = $pdo->prepare("
     SELECT 
-        steps.*,
+        guidance_steps.*,
         categories.name_en AS category_name
-    FROM steps
+    FROM guidance_steps
     LEFT JOIN categories 
-        ON steps.category_id = categories.id
-    ORDER BY steps.category_id ASC, steps.step_number ASC
+        ON guidance_steps.category_id = categories.id
+    ORDER BY guidance_steps.category_id ASC, guidance_steps.step_no ASC
 ");
 $stmt->execute();
 $steps = $stmt->fetchAll();
@@ -302,19 +344,41 @@ $steps = $stmt->fetchAll();
             <label>Step Number</label>
             <input type="number" name="step_number" placeholder="Step Number" required>
         </div>
-    </div>
-    <div class="row">
-        <div>
-            <label>Image</label>
-            <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
-        </div>
-    </div>
-
-    <div>
-        <label>Description</label>
-        <textarea name="description" placeholder="Description"></textarea>
-    </div>
-
+         </div> <div>
+             <label>Title (EN)</label>
+             <input type="text" name="title_en" placeholder="Title (EN)" required>
+         </div>
+         <div>
+             <label>Title (AR)</label>
+             <input type="text" name="title_ar" placeholder="Title (AR)" required>
+         </div>  
+         <div>
+             <label>Body (EN)</label>
+             <textarea name="body_en" placeholder="Body (EN)"></textarea>
+         </div>
+         <div>
+             <label>Body (AR)</label>
+             <textarea name="body_ar" placeholder="Body (AR)"></textarea>
+         </div> 
+         <div>
+             <label>Warning (EN)</label>
+             <textarea name="warning_en" placeholder="Warning (EN)"></textarea>
+         </div>
+         <div>
+             <label>Warning (AR)</label>
+             <textarea name="warning_ar" placeholder="Warning (AR)"></textarea>
+         </div>
+         <div class="row">
+             <div>
+                 <label>Image</label>
+                 <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+             </div>
+         </div>
+         <!-- <div></div>  -->
+        <label>
+            <input type="checkbox" name="is_active" checked>
+            Active
+        </label>
     <button type="submit" name="add" class="small-btn">Add Step</button>
 </form>
 
@@ -325,7 +389,8 @@ $steps = $stmt->fetchAll();
     <tr>
         <th>ID</th>
         <th>Category</th>
-        <th>Description</th>
+        <th>Title (EN)</th>
+        <th>Title (AR)</th>
         <th>Image</th>
         <th>Step Number</th>
     </tr>
@@ -335,15 +400,16 @@ $steps = $stmt->fetchAll();
             <tr>
                 <td><?= htmlspecialchars((string)$row['id']) ?></td>
                 <td><?= htmlspecialchars((string)($row['category_name'] ?? 'Unknown')) ?></td>
-                <td><?= htmlspecialchars((string)($row['description'] ?? '')) ?></td>
+                <td><?= htmlspecialchars((string)($row['title_en'] ?? '')) ?></td>
+                <td><?= htmlspecialchars((string)($row['title_ar'] ?? '')) ?></td>
                 <td>
-                    <?php if (!empty($row['image'])): ?>
-                        <img src="../uploads/steps/<?= htmlspecialchars((string)$row['image']) ?>" width="70" alt="step image">
+                    <?php if (!empty($row['image_path'])): ?>
+                        <img src="../uploads/steps/<?= htmlspecialchars((string)$row['image_path']) ?>" width="70" alt="step image">
                     <?php else: ?>
                         No Image
                     <?php endif; ?>
                 </td>
-                <td><?= htmlspecialchars((string)($row['step_number'] ?? '')) ?></td>
+                <td><?= htmlspecialchars((string)($row['step_no'] ?? '')) ?></td>
             </tr>
         <?php endforeach; ?>
     <?php else: ?>

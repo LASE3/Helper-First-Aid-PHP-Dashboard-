@@ -13,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     exit;
 }
 
-$categoryCode = $_GET['category_code'] ?? '';
+$categoryCode = trim($_GET['category_code'] ?? '');
 
 if ($categoryCode === '') {
     http_response_code(400);
@@ -26,11 +26,24 @@ if ($categoryCode === '') {
 
 try {
     $stmt = $pdo->prepare("
-        SELECT id, category_code, step_order, title, description, image, status
-        FROM steps
+        SELECT 
+            id,
+            category_id,
+            category_code,
+            step_no,
+            title_en,
+            title_ar,
+            body_en,
+            body_ar,
+            warning_en,
+            warning_ar,
+            image_path,
+            audio_path,
+            is_active
+        FROM guidance_steps
         WHERE category_code = :category_code
-        AND status = 'active'
-        ORDER BY step_order ASC, id ASC
+        AND is_active = 1
+        ORDER BY step_no ASC, id ASC
     ");
 
     $stmt->execute([
@@ -40,6 +53,7 @@ try {
     $steps = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode($steps, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([

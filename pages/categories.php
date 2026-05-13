@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/content_version_helper.php';
 
 require_perm('categories.view');
 
@@ -42,6 +43,11 @@ if (isset($_POST['add'])) {
         ]);
 
         $success = "Category added successfully.";
+        bump_content_version(
+            $pdo,
+            $_SESSION['admin_id'] ?? null,
+            'Admin added a new category'
+        );
     }
 }
 
