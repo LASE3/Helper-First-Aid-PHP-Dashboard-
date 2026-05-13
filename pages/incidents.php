@@ -264,14 +264,13 @@ if(count($incidents) > 0){
     <th>Category</th>
     <th>Urgency</th>
     <th>Confidence</th>
-    <th>Action</th>
+    <th>Manual Override</th>
+    <th>Language</th>
     <th>Input Text</th>
     <th>Location</th>
     <th>Images</th>
     <th>Date</th>
-    <th>Manual Override</th>
-    <th>Language</th>
-    
+    <th>Action</th>
 </tr>
 
     <?php if (count($incidents) > 0): ?>
@@ -287,6 +286,8 @@ if(count($incidents) > 0){
              ? htmlspecialchars(number_format((float)$row['confidence'], 2))
              : 'N/A' ?>
     </td>
+    <td><?= ((int)($row['manual_override'] ?? 0) === 1) ? 'Yes' : 'No' ?></td>
+    <td><?= htmlspecialchars((string)($row['lang'] ?? '')) ?></td>
     <td><?= htmlspecialchars((string)($row['input_text'] ?? '')) ?></td>
     <td>
         <?php if (!empty($row['lat']) && !empty($row['lng'])): ?>
@@ -311,8 +312,6 @@ if(count($incidents) > 0){
         <?php endif; ?>
     </td>
     <td><?= htmlspecialchars((string)($row['occurred_at'] ?? '')) ?></td>
-    <td><?= ((int)($row['manual_override'] ?? 0) === 1) ?></td>
-    <td><?= htmlspecialchars((string)($row['lang'] ?? '')) ?></td>
     <td>
     <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>">
         View
