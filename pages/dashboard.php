@@ -39,6 +39,8 @@ require_perm('dashboard.view');
     |
     <a href="admin_profile.php">My Profile</a>
     |
+    <a href="settings.php">Settings</a>
+    |
     <a href="logout.php" target="_top" style="color:black; text-decoration:none;">Logout</a>
 </div>
 

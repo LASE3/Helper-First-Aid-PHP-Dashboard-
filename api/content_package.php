@@ -14,19 +14,25 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 }
 
 try {
-    $stmt = $pdo->query("
-        SELECT 
-            steps.id,
-            steps.category_id,
-            categories.name_en AS category_name,
-            steps.step_number,
-            steps.description,
-            steps.image
-        FROM steps
-        LEFT JOIN categories 
-            ON steps.category_id = categories.id
-        ORDER BY steps.category_id ASC, steps.step_number ASC
-    ");
+$stmt = $pdo->query("
+    SELECT 
+        id,
+        category_id,
+        category_code,
+        step_no,
+        title_en,
+        title_ar,
+        body_en,
+        body_ar,
+        warning_en,
+        warning_ar,
+        image_path,
+        audio_path,
+        is_active
+    FROM guidance_steps
+    WHERE is_active = 1
+    ORDER BY category_code ASC, step_no ASC
+");
 
     $steps = $stmt->fetchAll();
 
