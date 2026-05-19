@@ -101,6 +101,53 @@ if(count($incidents) > 0){
         $incidentImages[(int)$img['incident_id']][] = $img['image_path'];
     }
 }
+/*
+|--------------------------------------------------------------------------
+| Charts Data
+|--------------------------------------------------------------------------
+*/
+
+$categoryChartStmt = $pdo->query("
+    SELECT 
+        COALESCE(categories.name_en, incidents.category_code) AS category_name,
+        COUNT(*) AS total
+    FROM incidents
+    LEFT JOIN categories 
+        ON incidents.category_code = categories.CODE
+    GROUP BY incidents.category_code, categories.name_en
+    ORDER BY total DESC
+");
+
+$categoryChartData = $categoryChartStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$categoryLabels = [];
+$categoryValues = [];
+
+foreach ($categoryChartData as $item) {
+    $categoryLabels[] = $item['category_name'];
+    $categoryValues[] = (int)$item['total'];
+}
+
+$urgencyChartStmt = $pdo->query("
+    SELECT 
+        urgency_level,
+        COUNT(*) AS total
+    FROM incidents
+    GROUP BY urgency_level
+    ORDER BY total DESC
+");
+
+$urgencyChartData = $urgencyChartStmt->fetchAll(PDO::FETCH_ASSOC);
+
+$urgencyLabels = [];
+$urgencyValues = [];
+
+foreach ($urgencyChartData as $item) {
+    $urgencyLabels[] = $item['urgency_level'] ?: 'Unknown';
+    $urgencyValues[] = (int)$item['total'];
+}
+
+$totalIncidents = count($incidents);
 ?>
 
 <!DOCTYPE html>
@@ -108,6 +155,7 @@ if(count($incidents) > 0){
 <head>
     <meta charset="UTF-8">
     <title>Incidents</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -195,11 +243,77 @@ if(count($incidents) > 0){
             padding: 8px 14px;
             cursor: pointer;
         }
+        .dashboard-header {
+            background: #2563eb;
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .dashboard-header h2 {
+            margin: 0;
+        }
+
+        .stats-row {
+           display: flex;
+           gap: 15px;
+           flex-wrap: wrap;
+           margin: 20px 0;
+        }
+
+        .stat-card {
+           background: white;
+           border: 1px solid #ddd;
+           border-radius: 12px;
+           padding: 18px;
+           min-width: 180px;
+           flex: 1;
+           box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .stat-card h4 {
+           margin: 0;
+           color: #555;
+        }
+
+        .stat-card p {
+           font-size: 28px;
+           font-weight: bold;
+           margin: 10px 0 0;
+           color: #2563eb;
+        }
+
+        .charts-row {
+           display: flex;
+           gap: 20px;
+           flex-wrap: wrap;
+           margin: 20px 0;
+        }
+
+        .chart-box {
+          background: white;
+          border: 1px solid #ddd;
+          border-radius: 12px;
+          padding: 20px;
+          flex: 1;
+          min-width: 350px;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+        }
+
+        .chart-box canvas {
+          max-height: 300px;
+        } 
+        
+        
     </style>
 </head>
 <body>
 
-<h2>Incidents Dashboard</h2>
+<div class="dashboard-header">
+    <h2>Incidents Dashboard</h2>
+    <p>Monitor emergency incidents, urgency levels, locations, and uploaded reports.</p>
+</div>
 
 <?php if ($message !== ""): ?>
     <div class="message"><?= htmlspecialchars($message) ?></div>
@@ -208,6 +322,34 @@ if(count($incidents) > 0){
 <?php if ($error !== ""): ?>
     <div class="error"><?= htmlspecialchars($error) ?></div>
 <?php endif; ?>
+<div class="stats-row">
+    <div class="stat-card">
+        <h4>Total Incidents</h4>
+        <p><?= htmlspecialchars((string)$totalIncidents) ?></p>
+    </div>
+
+    <div class="stat-card">
+        <h4>Categories</h4>
+        <p><?= htmlspecialchars((string)count($categoryLabels)) ?></p>
+    </div>
+
+    <div class="stat-card">
+        <h4>Urgency Types</h4>
+        <p><?= htmlspecialchars((string)count($urgencyLabels)) ?></p>
+    </div>
+</div>
+
+<div class="charts-row">
+    <div class="chart-box">
+        <h3>Incidents per Category</h3>
+        <canvas id="categoryChart"></canvas>
+    </div>
+
+    <div class="chart-box">
+        <h3>Incidents per Urgency</h3>
+        <canvas id="urgencyChart"></canvas>
+    </div>
+</div>
 
 <h3>Filter Incidents</h3>
 <form method="GET">
@@ -253,9 +395,15 @@ if(count($incidents) > 0){
 
 <hr>
 
-<a href="export_incidents.php" class="small-btn">Export CSV</a>
+<a href="export_incidents.php?category=<?= urlencode($filterCategory) ?>&urgency=<?= urlencode($filterUrgency) ?>&start_date=<?= urlencode($filterStartDate) ?>&end_date=<?= urlencode($filterEndDate) ?>"
+   class="small-btn">
+   Export CSV
+</a>
 
 <h3>Incidents List</h3>
+<p>
+    Showing <?= htmlspecialchars((string)count($incidents)) ?> incident(s).
+</p>
 <table>
 <tr>
     <th>ID</th>
@@ -270,6 +418,7 @@ if(count($incidents) > 0){
     <th>Location</th>
     <th>Images</th>
     <th>Date</th>
+    <th>Sync</th>
     <th>Action</th>
 </tr>
 
@@ -313,6 +462,21 @@ if(count($incidents) > 0){
     </td>
     <td><?= htmlspecialchars((string)($row['occurred_at'] ?? '')) ?></td>
     <td>
+    <?php if(!empty($row['synced_at'])): ?>
+
+    <span style="color:green;">
+     Synced
+    </span>
+
+    <?php else: ?>
+
+    <span style="color:red;">
+     Pending
+    </span>
+
+    <?php endif; ?>
+    </td>
+    <td>
     <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>">
         View
     </a>
@@ -321,13 +485,52 @@ if(count($incidents) > 0){
         <?php endforeach; ?>
     <?php else: ?>
         <tr>
-            <td colspan="13">No incidents found.</td>
+            <td colspan="14">No incidents found.</td>
         </tr>
     <?php endif; ?>
 </table>
 
 <br>
 <a href="dashboard.php">Back</a>
+<script>
+const categoryLabels = <?= json_encode($categoryLabels) ?>;
+const categoryValues = <?= json_encode($categoryValues) ?>;
+
+new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: {
+        labels: categoryLabels,
+        datasets: [{
+            label: 'Incidents',
+            data: categoryValues
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+const urgencyLabels = <?= json_encode($urgencyLabels) ?>;
+const urgencyValues = <?= json_encode($urgencyValues) ?>;
+
+new Chart(document.getElementById('urgencyChart'), {
+    type: 'pie',
+    data: {
+        labels: urgencyLabels,
+        datasets: [{
+            data: urgencyValues
+        }]
+    },
+    options: {
+        responsive: true
+    }
+});
+</script>
 
     </body>
 </html>
