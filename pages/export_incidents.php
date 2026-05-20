@@ -15,31 +15,12 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-header('Content-Type: text/csv; charset=utf-8');
-header('Content-Disposition: attachment; filename=incidents_export.csv');
+$filterCategory = trim($_GET['category'] ?? '');
+$filterUrgency = trim($_GET['urgency'] ?? '');
+$filterStartDate = trim($_GET['start_date'] ?? '');
+$filterEndDate = trim($_GET['end_date'] ?? '');
 
-$output = fopen('php://output', 'w');
-
-fputcsv($output, [
-    'ID',
-    'Device ID',
-    'Patient Name',
-    'Category Code',
-    'Category Name',
-    'Urgency',
-    'Confidence',
-    'Manual Override',
-    'Language',
-    'Latitude',
-    'Longitude',
-    'Location Source',
-    'Occurred At',
-    'Synced At',
-    'Input Text',
-    'Notes'
-]);
-
-$stmt = $pdo->query("
+$sql = "
     SELECT
         incidents.id,
         incidents.device_id,
@@ -62,31 +43,88 @@ $stmt = $pdo->query("
         ON incidents.device_id = app_users.device_id
     LEFT JOIN categories
         ON incidents.category_code = categories.CODE
-    ORDER BY incidents.occurred_at DESC
-");
+    WHERE 1=1
+";
+
+$params = [];
+
+if ($filterCategory !== '') {
+    $sql .= " AND incidents.category_code = :category";
+    $params[':category'] = $filterCategory;
+}
+
+if ($filterUrgency !== '') {
+    $sql .= " AND incidents.urgency_level = :urgency";
+    $params[':urgency'] = $filterUrgency;
+}
+
+if ($filterStartDate !== '') {
+    $sql .= " AND DATE(incidents.occurred_at) >= :start_date";
+    $params[':start_date'] = $filterStartDate;
+}
+
+if ($filterEndDate !== '') {
+    $sql .= " AND DATE(incidents.occurred_at) <= :end_date";
+    $params[':end_date'] = $filterEndDate;
+}
+
+$sql .= " ORDER BY incidents.occurred_at DESC";
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+
+header('Content-Type: text/csv; charset=UTF-8');
+header('Content-Disposition: attachment; filename="incidents_export.csv"');
+
+$output = fopen('php://output', 'w');
+
+fputcsv($output, [
+    'ID',
+    'Device ID',
+    'Patient Name',
+    'Category Code',
+    'Category Name',
+    'Urgency',
+    'Confidence',
+    'Manual Override',
+    'Language',
+    'Latitude',
+    'Longitude',
+    'Location Source',
+    'Google Maps Link',
+    'Occurred At',
+    'Synced At',
+    'Input Text',
+    'Notes'
+]);
 
 while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+    $mapLink = '';
+
+    if (!empty($row['lat']) && !empty($row['lng'])) {
+        $mapLink = 'https://www.google.com/maps?q=' . $row['lat'] . ',' . $row['lng'];
+    }
+
     fputcsv($output, [
-        $row['id'],
-        $row['device_id'],
-        $row['full_name'],
-        $row['category_code'],
-        $row['category_name'],
-        $row['urgency_level'],
-        $row['confidence'],
-        $row['manual_override'],
-        $row['lang'],
-        $row['lat'],
-        $row['lng'],
-        $row['location_source'],
-        $row['occurred_at'],
-        $row['synced_at'],
-        $row['input_text'],
-        $row['notes']
+        $row['id'] ?? '',
+        $row['device_id'] ?? '',
+        $row['full_name'] ?? '',
+        $row['category_code'] ?? '',
+        $row['category_name'] ?? '',
+        $row['urgency_level'] ?? '',
+        $row['confidence'] ?? '',
+        ((int)($row['manual_override'] ?? 0) === 1) ? 'Yes' : 'No',
+        $row['lang'] ?? '',
+        $row['lat'] ?? '',
+        $row['lng'] ?? '',
+        $row['location_source'] ?? '',
+        $mapLink,
+        $row['occurred_at'] ?? '',
+        $row['synced_at'] ?? '',
+        $row['input_text'] ?? '',
+        $row['notes'] ?? ''
     ]);
 }
 
 fclose($output);
 exit;
-
-?>
