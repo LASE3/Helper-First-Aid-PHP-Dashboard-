@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -20,9 +19,31 @@ if (!isset($_SESSION['admin'])) {
 $message = "";
 $error = "";
 
+function app_user_has_column(PDO $pdo, string $column): bool
+{
+    $stmt = $pdo->prepare("SHOW COLUMNS FROM app_users LIKE ?");
+    $stmt->execute([$column]);
+    return (bool)$stmt->fetch();
+}
+
+$settingColumns = [
+    'language',
+    'country_code',
+    'emergency_number',
+    'ambulance_number',
+    'fire_number',
+];
+
+$missingSettingColumns = [];
+foreach ($settingColumns as $column) {
+    if (!app_user_has_column($pdo, $column)) {
+        $missingSettingColumns[] = $column;
+    }
+}
+$hasUserSettingsColumns = count($missingSettingColumns) === 0;
+
 try {
     if (isset($_POST['update_user'])) {
-        // If you do not add users.edit permission yet, admin can still edit when users.view exists.
         if (function_exists('can') && !can('users.edit') && !can('users.view')) {
             require_perm('users.edit');
         }
@@ -35,21 +56,19 @@ try {
         if ($id <= 0 || $deviceId === '') {
             $error = "Valid user ID and Device ID are required.";
         } else {
-            $stmt = $pdo->prepare(" 
-                UPDATE app_users
-                SET device_id = :device_id,
-                    full_name = :full_name,
-                    age = :age,
-                    sex = :sex,
-                    blood_type = :blood_type,
-                    allergies = :allergies,
-                    conditions = :conditions,
-                    medications = :medications,
-                    notes = :notes
-                WHERE id = :id
-            ");
+            $setParts = [
+                'device_id = :device_id',
+                'full_name = :full_name',
+                'age = :age',
+                'sex = :sex',
+                'blood_type = :blood_type',
+                'allergies = :allergies',
+                'conditions = :conditions',
+                'medications = :medications',
+                'notes = :notes',
+            ];
 
-            $stmt->execute([
+            $params = [
                 ':id' => $id,
                 ':device_id' => $deviceId,
                 ':full_name' => $fullName === '' ? null : $fullName,
@@ -60,9 +79,27 @@ try {
                 ':conditions' => trim($_POST['conditions'] ?? ''),
                 ':medications' => trim($_POST['medications'] ?? ''),
                 ':notes' => trim($_POST['notes'] ?? ''),
-            ]);
+            ];
 
-            log_admin_action($pdo, 'edit_app_user', 'app_user', $id, 'Admin edited an app user');
+            if ($hasUserSettingsColumns) {
+                $setParts[] = 'language = :language';
+                $setParts[] = 'country_code = :country_code';
+                $setParts[] = 'emergency_number = :emergency_number';
+                $setParts[] = 'ambulance_number = :ambulance_number';
+                $setParts[] = 'fire_number = :fire_number';
+
+                $params[':language'] = trim($_POST['language'] ?? 'en');
+                $params[':country_code'] = trim($_POST['country_code'] ?? '+962');
+                $params[':emergency_number'] = trim($_POST['emergency_number'] ?? '911');
+                $params[':ambulance_number'] = trim($_POST['ambulance_number'] ?? '193');
+                $params[':fire_number'] = trim($_POST['fire_number'] ?? '199');
+            }
+
+            $sql = "UPDATE app_users SET " . implode(",\n                    ", $setParts) . " WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+
+            log_admin_action($pdo, 'edit_app_user', 'app_user', $id, 'Admin edited an app user and user settings');
             $message = "User updated successfully.";
         }
     }
@@ -83,7 +120,6 @@ try {
             $contactDelete = $pdo->prepare("DELETE FROM user_emergency_contacts WHERE user_id = ?");
             $contactDelete->execute([$id]);
 
-            // Keep incidents for reporting, but detach patient link instead of deleting incident history.
             if ($deviceId !== '') {
                 $detach = $pdo->prepare("UPDATE incidents SET device_id = NULL WHERE device_id = ?");
                 $detach->execute([$deviceId]);
@@ -115,19 +151,24 @@ $users = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <title>App Users</title>
-    <link rel="stylesheet" href="../assets/css/users.css?v=20260520b">
+    <link rel="stylesheet" href="../assets/css/users.css?v=20260520c">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
-
 <body>
     <div class="page-header">
         <h1>App Users</h1>
-        <p>Manage mobile application users and their medical profile information.</p>
+        <p>Manage mobile users, medical profile information, and user app settings in one place.</p>
     </div>
+
+    <?php if (!$hasUserSettingsColumns): ?>
+        <div class="error">
+            Missing DB columns in app_users: <?= htmlspecialchars(implode(', ', $missingSettingColumns)) ?>.
+            Run the SQL patch before saving user settings.
+        </div>
+    <?php endif; ?>
 
     <?php if ($message !== ""): ?>
         <div class="message"><?= htmlspecialchars($message) ?></div>
@@ -145,10 +186,10 @@ $users = $stmt->fetchAll();
                         <th>Name</th>
                         <th>Age</th>
                         <th>Gender</th>
-                        <th>Blood</th>
+                        <th>Country Code</th>
+                        <th>Emergency</th>
                         <th>Device ID</th>
                         <th>Incidents</th>
-                        <th>Last Updated</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -161,10 +202,10 @@ $users = $stmt->fetchAll();
                                 <td><?= htmlspecialchars((string)($user['full_name'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string)($user['age'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string)($user['sex'] ?? '')) ?></td>
-                                <td><?= htmlspecialchars((string)($user['blood_type'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string)($user['country_code'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string)($user['emergency_number'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string)($user['device_id'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string)$user['incident_count']) ?></td>
-                                <td><?= htmlspecialchars((string)($user['updated_at'] ?? '')) ?></td>
                                 <td class="action-buttons">
                                     <a href="user_view.php?id=<?= urlencode((string)$userId) ?>" class="button muted">View</a>
                                     <button type="button" class="button" onclick="parent.openGlobalModal(document.getElementById('editUser<?= $userId ?>').innerHTML)">Edit</button>
@@ -177,7 +218,7 @@ $users = $stmt->fetchAll();
                                         <div class="modal-header">
                                             <div>
                                                 <h3>Edit User</h3>
-                                                <p>Update the mobile user medical profile.</p>
+                                                <p>Medical profile and app settings are saved inside app_users.</p>
                                             </div>
                                         </div>
                                         <form method="POST" action="pages/users.php" class="js-confirm-save modal-form">
@@ -188,6 +229,19 @@ $users = $stmt->fetchAll();
                                                 <div><label>Age</label><input type="number" name="age" value="<?= htmlspecialchars((string)($user['age'] ?? '')) ?>"></div>
                                                 <div><label>Gender</label><input type="text" name="sex" value="<?= htmlspecialchars((string)($user['sex'] ?? '')) ?>"></div>
                                                 <div><label>Blood Type</label><input type="text" name="blood_type" value="<?= htmlspecialchars((string)($user['blood_type'] ?? '')) ?>"></div>
+
+                                                <div>
+                                                    <label>Language</label>
+                                                    <select name="language" <?= $hasUserSettingsColumns ? '' : 'disabled' ?>>
+                                                        <option value="en" <?= (($user['language'] ?? 'en') === 'en') ? 'selected' : '' ?>>English</option>
+                                                        <option value="ar" <?= (($user['language'] ?? '') === 'ar') ? 'selected' : '' ?>>Arabic</option>
+                                                    </select>
+                                                </div>
+                                                <div><label>Country Code</label><input type="text" name="country_code" value="<?= htmlspecialchars((string)($user['country_code'] ?? '+962')) ?>" <?= $hasUserSettingsColumns ? '' : 'disabled' ?>></div>
+                                                <div><label>Emergency Number</label><input type="text" name="emergency_number" value="<?= htmlspecialchars((string)($user['emergency_number'] ?? '911')) ?>" <?= $hasUserSettingsColumns ? '' : 'disabled' ?>></div>
+                                                <div><label>Ambulance Number</label><input type="text" name="ambulance_number" value="<?= htmlspecialchars((string)($user['ambulance_number'] ?? '193')) ?>" <?= $hasUserSettingsColumns ? '' : 'disabled' ?>></div>
+                                                <div><label>Fire Number</label><input type="text" name="fire_number" value="<?= htmlspecialchars((string)($user['fire_number'] ?? '199')) ?>" <?= $hasUserSettingsColumns ? '' : 'disabled' ?>></div>
+
                                                 <div><label>Allergies</label><textarea name="allergies"><?= htmlspecialchars((string)($user['allergies'] ?? '')) ?></textarea></div>
                                                 <div><label>Conditions</label><textarea name="conditions"><?= htmlspecialchars((string)($user['conditions'] ?? '')) ?></textarea></div>
                                                 <div><label>Medications</label><textarea name="medications"><?= htmlspecialchars((string)($user['medications'] ?? '')) ?></textarea></div>
@@ -203,14 +257,11 @@ $users = $stmt->fetchAll();
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr>
-                            <td colspan="9" class="empty">No users found.</td>
-                        </tr>
+                        <tr><td colspan="9" class="empty">No users found.</td></tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </body>
-
 </html>
