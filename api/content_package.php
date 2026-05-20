@@ -1,51 +1,47 @@
 <?php
 declare(strict_types=1);
-require_once '../config/database.php';
+require_once __DIR__ . '/../config/database.php';
 
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     http_response_code(405);
-    echo json_encode([
-        'success' => false,
-        'message' => 'Method not allowed'
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
 try {
-$stmt = $pdo->query("
-    SELECT 
-        id,
-        category_id,
-        category_code,
-        step_no,
-        title_en,
-        title_ar,
-        body_en,
-        body_ar,
-        warning_en,
-        warning_ar,
-        image_path,
-        audio_path,
-        is_active
-    FROM guidance_steps
-    WHERE is_active = 1
-    ORDER BY category_code ASC, step_no ASC
-");
+    $catStmt = $pdo->query("
+        SELECT
+            code,
+            name_en,
+            name_ar
+        FROM categories
+        WHERE is_active = 1
+        ORDER BY sort_order ASC, id ASC
+    ");
 
-    $steps = $stmt->fetchAll();
+    $stepStmt = $pdo->query("
+        SELECT
+            category_code,
+            step_no,
+            COALESCE(title_en, '') AS title_en,
+            COALESCE(title_ar, '') AS title_ar,
+            COALESCE(body_en, '') AS body_en,
+            COALESCE(body_ar, '') AS body_ar,
+            COALESCE(image_path, '') AS image_asset,
+            COALESCE(updated_at, NOW()) AS updated_at
+        FROM guidance_steps
+        WHERE is_active = 1
+        ORDER BY category_code ASC, step_no ASC, id ASC
+    ");
 
     echo json_encode([
-        "success" => true,
-        "steps" => $steps
-    ]);
+        'success' => true,
+        'categories' => $catStmt->fetchAll(PDO::FETCH_ASSOC),
+        'steps' => $stepStmt->fetchAll(PDO::FETCH_ASSOC),
+    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 } catch (Throwable $e) {
     http_response_code(500);
-    echo json_encode([
-        "success" => false,
-        "message" => "Server error"
-    ]);
+    echo json_encode(['success' => false, 'message' => 'Server error'], JSON_UNESCAPED_UNICODE);
 }
-
-?>
