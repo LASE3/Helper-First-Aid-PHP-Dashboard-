@@ -212,6 +212,15 @@ $stmt = $pdo->prepare("
 ");
 $stmt->execute();
 $steps = $stmt->fetchAll();
+
+$stepsByCategory = [];
+foreach ($steps as $stepRow) {
+    $key = (string)($stepRow['category_name'] ?? 'Unknown');
+    if (!isset($stepsByCategory[$key])) {
+        $stepsByCategory[$key] = [];
+    }
+    $stepsByCategory[$key][] = $stepRow;
+}
 ?>
 
 <!DOCTYPE html>
@@ -299,144 +308,152 @@ $steps = $stmt->fetchAll();
     </form>
 
     <h3>Steps List</h3>
-    <div class="table-wrap">
-        <table>
-            <tr>
-                <th>ID</th>
-                <th>Category</th>
-                <th>Title (EN)</th>
-                <th>Title (AR)</th>
-                <th>Image</th>
-                <th>Step Number</th>
-                <th>Actions</th>
-            </tr>
 
-            <?php if (count($steps) > 0): ?>
-                <?php foreach ($steps as $row): ?>
-                    <tr>
-                        <td><?= htmlspecialchars((string)$row['id']) ?></td>
-                        <td><?= htmlspecialchars((string)($row['category_name'] ?? 'Unknown')) ?></td>
-                        <td><?= htmlspecialchars((string)($row['title_en'] ?? '')) ?></td>
-                        <td><?= htmlspecialchars((string)($row['title_ar'] ?? '')) ?></td>
-                        <td>
-                            <?php if (!empty($row['image_path'])): ?>
-                                <img src="../uploads/steps/<?= htmlspecialchars((string)$row['image_path']) ?>" width="70" alt="step image">
-                            <?php else: ?>
-                                No Image
-                            <?php endif; ?>
-                        </td>
-                        <td><?= htmlspecialchars((string)($row['step_no'] ?? '')) ?></td>
-                        <td class="action-buttons">
-                            <?php if (can('steps.edit')): ?>
-                                <button
-                                    type="button"
-                                    class="btn-secondary"
-                                    onclick="parent.openGlobalModal(document.getElementById('editStep<?= (int)$row['id'] ?>').innerHTML)">
-                                    Edit
-                                </button>
-                            <?php endif; ?>
+    <?php if (count($stepsByCategory) > 0): ?>
+        <?php foreach ($stepsByCategory as $categoryTitle => $categorySteps): ?>
+            <div class="category-step-card">
+                <div class="category-step-header">
+                    <div>
+                        <h3><?= htmlspecialchars($categoryTitle) ?></h3>
+                        <p><?= htmlspecialchars((string)count($categorySteps)) ?> step(s) in this category</p>
+                    </div>
+                </div>
 
-                            <?php if (can('steps.delete')): ?>
-                                <form method="POST" class="inline-form js-confirm-delete">
-                                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
-                                    <button type="submit" name="delete_step" class="btn-danger">Delete</button>
-                                </form>
-                            <?php endif; ?>
-                            <?php if (can('steps.edit')): ?>
-                                <div id="editStep<?= (int)$row['id'] ?>" style="display:none;">
-                                    <div class="modal-header">
-                                        <div>
-                                            <h3>Edit Step</h3>
-                                            <p>Update this guidance step. The Flutter content version will be updated after saving.</p>
+                <div class="table-wrap">
+                    <table>
+                        <tr>
+                            <th>ID</th>
+                            <th>Title (EN)</th>
+                            <th>Title (AR)</th>
+                            <th>Image</th>
+                            <th>Step Number</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+
+                        <?php foreach ($categorySteps as $row): ?>
+                            <tr>
+                                <td><?= htmlspecialchars((string)$row['id']) ?></td>
+                                <td><?= htmlspecialchars((string)($row['title_en'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string)($row['title_ar'] ?? '')) ?></td>
+                                <td>
+                                    <?php if (!empty($row['image_path'])): ?>
+                                        <img src="../uploads/steps/<?= htmlspecialchars((string)$row['image_path']) ?>" width="70" alt="step image">
+                                    <?php else: ?>
+                                        No Image
+                                    <?php endif; ?>
+                                </td>
+                                <td><?= htmlspecialchars((string)($row['step_no'] ?? '')) ?></td>
+                                <td><?= (int)($row['is_active'] ?? 0) === 1 ? 'Active' : 'Inactive' ?></td>
+                                <td class="action-buttons">
+                                    <?php if (can('steps.edit')): ?>
+                                        <button
+                                            type="button"
+                                            class="btn-secondary"
+                                            onclick="parent.openGlobalModal(document.getElementById('editStep<?= (int)$row['id'] ?>').innerHTML)">
+                                            Edit
+                                        </button>
+                                    <?php endif; ?>
+
+                                    <?php if (can('steps.delete')): ?>
+                                        <form method="POST" class="inline-form js-confirm-delete">
+                                            <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
+                                            <button type="submit" name="delete_step" class="btn-danger">Delete</button>
+                                        </form>
+                                    <?php endif; ?>
+
+                                    <?php if (can('steps.edit')): ?>
+                                        <div id="editStep<?= (int)$row['id'] ?>" style="display:none;">
+                                            <div class="modal-header">
+                                                <div>
+                                                    <h3>Edit Step</h3>
+                                                    <p>Update this guidance step. The Flutter content version will be updated after saving.</p>
+                                                </div>
+                                            </div>
+
+                                            <form method="POST" action="pages/steps.php" enctype="multipart/form-data" class="js-confirm-save modal-form">
+                                                <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
+
+                                                <div class="row">
+                                                    <div>
+                                                        <label>Category</label>
+                                                        <select name="category_id" required>
+                                                            <?php foreach ($categories as $c): ?>
+                                                                <option value="<?= htmlspecialchars((string)$c['id']) ?>"
+                                                                    <?= (int)$row['category_id'] === (int)$c['id'] ? 'selected' : '' ?>>
+                                                                    <?= htmlspecialchars((string)$c['name_en']) ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </div>
+
+                                                    <div>
+                                                        <label>Step Number</label>
+                                                        <input type="number" name="step_number" value="<?= htmlspecialchars((string)$row['step_no']) ?>" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div>
+                                                        <label>Title (EN)</label>
+                                                        <input type="text" name="title_en" value="<?= htmlspecialchars((string)$row['title_en']) ?>" required>
+                                                    </div>
+
+                                                    <div>
+                                                        <label>Title (AR)</label>
+                                                        <input type="text" name="title_ar" value="<?= htmlspecialchars((string)$row['title_ar']) ?>" required>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div>
+                                                        <label>Body (EN)</label>
+                                                        <textarea name="body_en" required><?= htmlspecialchars((string)$row['body_en']) ?></textarea>
+                                                    </div>
+
+                                                    <div>
+                                                        <label>Body (AR)</label>
+                                                        <textarea name="body_ar" required><?= htmlspecialchars((string)$row['body_ar']) ?></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row">
+                                                    <div>
+                                                        <label>Warning (EN)</label>
+                                                        <textarea name="warning_en"><?= htmlspecialchars((string)$row['warning_en']) ?></textarea>
+                                                    </div>
+
+                                                    <div>
+                                                        <label>Warning (AR)</label>
+                                                        <textarea name="warning_ar"><?= htmlspecialchars((string)$row['warning_ar']) ?></textarea>
+                                                    </div>
+                                                </div>
+
+                                                <label>Replace Image</label>
+                                                <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+
+                                                <label class="checkbox-label">
+                                                    <input type="checkbox" name="is_active" <?= (int)$row['is_active'] === 1 ? 'checked' : '' ?>>
+                                                    Active
+                                                </label>
+
+                                                <div class="modal-actions">
+                                                    <button type="submit" name="update_step" class="btn-primary">Save Edit</button>
+                                                    <button type="button" class="btn-secondary" onclick="parent.closeGlobalModal()">Cancel</button>
+                                                </div>
+                                            </form>
                                         </div>
-                                    </div>
-
-                                    <form method="POST" action="pages/steps.php" enctype="multipart/form-data" class="js-confirm-save modal-form">
-                                        <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
-
-                                        <div class="row">
-                                            <div>
-                                                <label>Category</label>
-                                                <select name="category_id" required>
-                                                    <?php foreach ($categories as $c): ?>
-                                                        <option value="<?= htmlspecialchars((string)$c['id']) ?>"
-                                                            <?= (int)$row['category_id'] === (int)$c['id'] ? 'selected' : '' ?>>
-                                                            <?= htmlspecialchars((string)$c['name_en']) ?>
-                                                        </option>
-                                                    <?php endforeach; ?>
-                                                </select>
-                                            </div>
-
-                                            <div>
-                                                <label>Step Number</label>
-                                                <input type="number" name="step_number" value="<?= htmlspecialchars((string)$row['step_no']) ?>" required>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div>
-                                                <label>Title (EN)</label>
-                                                <input type="text" name="title_en" value="<?= htmlspecialchars((string)$row['title_en']) ?>" required>
-                                            </div>
-
-                                            <div>
-                                                <label>Title (AR)</label>
-                                                <input type="text" name="title_ar" value="<?= htmlspecialchars((string)$row['title_ar']) ?>" required>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div>
-                                                <label>Body (EN)</label>
-                                                <textarea name="body_en" required><?= htmlspecialchars((string)$row['body_en']) ?></textarea>
-                                            </div>
-
-                                            <div>
-                                                <label>Body (AR)</label>
-                                                <textarea name="body_ar" required><?= htmlspecialchars((string)$row['body_ar']) ?></textarea>
-                                            </div>
-                                        </div>
-
-                                        <div class="row">
-                                            <div>
-                                                <label>Warning (EN)</label>
-                                                <textarea name="warning_en"><?= htmlspecialchars((string)$row['warning_en']) ?></textarea>
-                                            </div>
-
-                                            <div>
-                                                <label>Warning (AR)</label>
-                                                <textarea name="warning_ar"><?= htmlspecialchars((string)$row['warning_ar']) ?></textarea>
-                                            </div>
-                                        </div>
-
-                                        <label>Replace Image</label>
-                                        <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
-
-                                        <label class="checkbox-label">
-                                            <input type="checkbox" name="is_active" <?= (int)$row['is_active'] === 1 ? 'checked' : '' ?>>
-                                            Active
-                                        </label>
-
-                                        <div class="modal-actions">
-                                            <button type="submit" name="update_step" class="small-btn">Save Edit</button>
-
-                                            <button type="button" class="btn-secondary" onclick="parent.closeGlobalModal()">
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <tr>
-                    <td colspan="7">No steps found.</td>
-                </tr>
-            <?php endif; ?>
-        </table>
-    </div>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </table>
+                </div>
+            </div>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <div class="category-step-card empty-card">No steps found.</div>
+    <?php endif; ?>
 
 </body>
 

@@ -64,8 +64,7 @@ if (isset($_POST['save'])) {
                 emergency_number = :emergency_number,
                 ambulance_number = :ambulance_number,
                 fire_number = :fire_number,
-                country_code = :country_code,
-                updated_at = NOW()
+                country_code = :country_code
             WHERE id = 1
         ");
 
@@ -82,7 +81,7 @@ if (isset($_POST['save'])) {
             'update_settings',
             'settings',
             1,
-            'Admin updated application settings'
+            'Admin updated mobile user settings'
         );
 
         $message = "Settings updated successfully.";
@@ -162,7 +161,8 @@ $settings = $stmt->fetch();
 
 <body>
 
-    <h2>Application Settings</h2>
+    <h2>Mobile User Settings</h2>
+    <p class="muted">These settings are for the mobile app user experience, not the admin dashboard layout.</p>
 
     <?php if ($message !== ""): ?>
         <div class="message"><?= htmlspecialchars($message) ?></div>

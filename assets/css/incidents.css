@@ -315,3 +315,55 @@
    .btn-danger:hover {
        background: #fecaca;
    }
+
+   .action-buttons button {
+       width: auto;
+       max-width: none;
+   }
+
+   .modal-header {
+       margin-bottom: 18px;
+       border-bottom: 1px solid #e2e8f0;
+       padding-bottom: 12px;
+   }
+
+   .modal-header h3 {
+       margin: 0 0 6px;
+   }
+
+   .modal-header p {
+       margin: 0;
+       color: #64748b;
+   }
+
+   .modal-grid {
+       grid-template-columns: repeat(2, 1fr) !important;
+   }
+
+   .modal-grid input,
+   .modal-grid select,
+   .modal-grid textarea {
+       max-width: none;
+   }
+
+   .wide-field {
+       grid-column: 1 / -1;
+   }
+
+   .checkbox-cell {
+       display: flex;
+       align-items: center;
+   }
+
+   .checkbox-cell input {
+       width: auto;
+       max-width: none;
+       margin-right: 8px;
+   }
+
+   .modal-actions {
+       display: flex;
+       justify-content: flex-end;
+       gap: 10px;
+       margin-top: 18px;
+   }

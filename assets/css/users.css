@@ -76,3 +76,114 @@ a {
 .table-wrap {
     overflow-x: auto
 }
+
+.page-header p {
+    margin-top: -8px;
+    color: #64748b;
+}
+
+.message {
+    color: #15803d;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.error {
+    color: #b91c1c;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.inline-form {
+    margin: 0;
+    display: inline-block;
+}
+
+button.button {
+    border: none;
+    cursor: pointer;
+    font: inherit;
+}
+
+.button.muted {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.danger-button {
+    border: none;
+    cursor: pointer;
+    padding: 8px 12px;
+    background: #fee2e2;
+    color: #991b1b;
+    border-radius: 8px;
+    font-weight: 700;
+}
+
+.danger-button:hover {
+    background: #fecaca;
+}
+
+.modal-header {
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 12px;
+}
+
+.modal-header h3 {
+    margin: 0 0 6px;
+}
+
+.modal-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+}
+
+.form-grid label {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.form-grid input,
+.form-grid textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+}
+
+.form-grid textarea {
+    min-height: 86px;
+    resize: vertical;
+}
+
+.wide-field {
+    grid-column: 1 / -1;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}

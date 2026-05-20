@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 
 try {
     $stmt = $pdo->query("
-        SELECT id, CODE, urgency_level, name_en, name_ar, icon_key, is_active, sort_order
+        SELECT id, CODE AS code, CODE, urgency_level, name_en, name_ar, icon_key, is_active, sort_order
         FROM categories
         WHERE is_active = 1
         ORDER BY sort_order ASC, id ASC
@@ -32,4 +32,3 @@ try {
         'message' => 'Failed to fetch categories'
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
 }
-?>

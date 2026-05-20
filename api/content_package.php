@@ -14,9 +14,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
 try {
     $catStmt = $pdo->query("
         SELECT
-            code,
+            CODE AS code,
             name_en,
-            name_ar
+            name_ar,
+            urgency_level,
+            COALESCE(icon_key, '') AS icon_key,
+            sort_order
         FROM categories
         WHERE is_active = 1
         ORDER BY sort_order ASC, id ASC
@@ -30,6 +33,9 @@ try {
             COALESCE(title_ar, '') AS title_ar,
             COALESCE(body_en, '') AS body_en,
             COALESCE(body_ar, '') AS body_ar,
+            COALESCE(warning_en, '') AS warning_en,
+            COALESCE(warning_ar, '') AS warning_ar,
+            COALESCE(image_path, '') AS image_path,
             COALESCE(image_path, '') AS image_asset,
             COALESCE(updated_at, NOW()) AS updated_at
         FROM guidance_steps
@@ -46,4 +52,3 @@ try {
     http_response_code(500);
     echo json_encode(['success' => false, 'message' => 'Server error'], JSON_UNESCAPED_UNICODE);
 }
-?>

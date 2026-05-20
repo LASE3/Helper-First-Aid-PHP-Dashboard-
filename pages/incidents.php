@@ -247,83 +247,6 @@ $totalIncidents = count($incidents);
         <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <?php if ($editIncident): ?>
-        <div class="modal-backdrop">
-            <div class="modal-card modal-card-wide">
-                <h3>Edit Incident #<?= htmlspecialchars((string)$editIncident['id']) ?></h3>
-
-                <form method="POST" class="js-confirm-save">
-                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editIncident['id']) ?>">
-
-                    <div class="form-grid">
-                        <div>
-                            <label>Category</label>
-                            <select name="category_code" required>
-                                <?php foreach ($categories as $c): ?>
-                                    <option value="<?= htmlspecialchars((string)$c['CODE']) ?>"
-                                        <?= (string)$editIncident['category_code'] === (string)$c['CODE'] ? 'selected' : '' ?>>
-                                        <?= htmlspecialchars((string)$c['name_en']) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label>Urgency</label>
-                            <select name="urgency_level">
-                                <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
-                                    <option value="<?= $level ?>" <?= (string)$editIncident['urgency_level'] === $level ? 'selected' : '' ?>>
-                                        <?= ucfirst($level) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label>Confidence</label>
-                            <input type="number" step="0.01" name="confidence" value="<?= htmlspecialchars((string)($editIncident['confidence'] ?? '')) ?>">
-                        </div>
-
-                        <div>
-                            <label>Language</label>
-                            <input type="text" name="lang" value="<?= htmlspecialchars((string)($editIncident['lang'] ?? '')) ?>">
-                        </div>
-
-                        <div>
-                            <label>Latitude</label>
-                            <input type="text" name="lat" value="<?= htmlspecialchars((string)($editIncident['lat'] ?? '')) ?>">
-                        </div>
-
-                        <div>
-                            <label>Longitude</label>
-                            <input type="text" name="lng" value="<?= htmlspecialchars((string)($editIncident['lng'] ?? '')) ?>">
-                        </div>
-
-                        <div>
-                            <label>Occurred At</label>
-                            <input type="text" name="occurred_at" value="<?= htmlspecialchars((string)($editIncident['occurred_at'] ?? '')) ?>">
-                        </div>
-
-                        <div>
-                            <label>
-                                <input type="checkbox" name="manual_override" <?= (int)($editIncident['manual_override'] ?? 0) === 1 ? 'checked' : '' ?>>
-                                Manual Override
-                            </label>
-                        </div>
-                    </div>
-
-                    <label>Input Text</label>
-                    <textarea name="input_text"><?= htmlspecialchars((string)($editIncident['input_text'] ?? '')) ?></textarea>
-
-                    <div class="filter-actions">
-                        <button type="submit" name="update_incident" class="btn-primary">Save Edit</button>
-                        <a href="incidents.php" class="btn-secondary">Cancel</a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    <?php endif; ?>
-
     <div class="stats-row">
         <div class="stat-card">
             <h4>Total Incidents</h4>
@@ -378,6 +301,7 @@ $totalIncidents = count($incidents);
                         <option value="low" <?= $filterUrgency === 'low' ? 'selected' : '' ?>>Low</option>
                         <option value="medium" <?= $filterUrgency === 'medium' ? 'selected' : '' ?>>Medium</option>
                         <option value="high" <?= $filterUrgency === 'high' ? 'selected' : '' ?>>High</option>
+                        <option value="extreme" <?= $filterUrgency === 'extreme' ? 'selected' : '' ?>>Extreme</option>
                     </select>
                 </div>
 
@@ -491,9 +415,9 @@ $totalIncidents = count($incidents);
                             </a>
 
                             <?php if (can('incidents.edit')): ?>
-                                <a href="incidents.php?edit_incident=<?= urlencode((string)$row['id']) ?>" class="btn-secondary">
+                                <button type="button" class="btn-secondary" onclick="parent.openGlobalModal(document.getElementById('editIncident<?= (int)$row['id'] ?>').innerHTML)">
                                     Edit
-                                </a>
+                                </button>
                             <?php endif; ?>
 
                             <?php if (can('incidents.delete')): ?>
@@ -501,6 +425,51 @@ $totalIncidents = count($incidents);
                                     <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
                                     <button type="submit" name="delete_incident" class="btn-danger">Delete</button>
                                 </form>
+                            <?php endif; ?>
+
+                            <?php if (can('incidents.edit')): ?>
+                                <div id="editIncident<?= (int)$row['id'] ?>" style="display:none;">
+                                    <div class="modal-header">
+                                        <div>
+                                            <h3>Edit Incident #<?= htmlspecialchars((string)$row['id']) ?></h3>
+                                            <p>Update incident data. This window floats above the full dashboard.</p>
+                                        </div>
+                                    </div>
+                                    <form method="POST" action="pages/incidents.php" class="js-confirm-save modal-form">
+                                        <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
+                                        <div class="form-grid modal-grid">
+                                            <div>
+                                                <label>Category</label>
+                                                <select name="category_code" required>
+                                                    <?php foreach ($categories as $c): ?>
+                                                        <option value="<?= htmlspecialchars((string)$c['CODE']) ?>" <?= (string)$row['category_code'] === (string)$c['CODE'] ? 'selected' : '' ?>>
+                                                            <?= htmlspecialchars((string)$c['name_en']) ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label>Urgency</label>
+                                                <select name="urgency_level">
+                                                    <?php foreach (['low', 'medium', 'high', 'extreme'] as $level): ?>
+                                                        <option value="<?= $level ?>" <?= (string)$row['urgency_level'] === $level ? 'selected' : '' ?>><?= ucfirst($level) ?></option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+                                            <div><label>Confidence</label><input type="number" step="0.01" name="confidence" value="<?= htmlspecialchars((string)($row['confidence'] ?? '')) ?>"></div>
+                                            <div><label>Language</label><input type="text" name="lang" value="<?= htmlspecialchars((string)($row['lang'] ?? '')) ?>"></div>
+                                            <div><label>Latitude</label><input type="text" name="lat" value="<?= htmlspecialchars((string)($row['lat'] ?? '')) ?>"></div>
+                                            <div><label>Longitude</label><input type="text" name="lng" value="<?= htmlspecialchars((string)($row['lng'] ?? '')) ?>"></div>
+                                            <div><label>Occurred At</label><input type="text" name="occurred_at" value="<?= htmlspecialchars((string)($row['occurred_at'] ?? '')) ?>"></div>
+                                            <div class="checkbox-cell"><label><input type="checkbox" name="manual_override" <?= (int)($row['manual_override'] ?? 0) === 1 ? 'checked' : '' ?>> Manual Override</label></div>
+                                            <div class="wide-field"><label>Input Text</label><textarea name="input_text"><?= htmlspecialchars((string)($row['input_text'] ?? '')) ?></textarea></div>
+                                        </div>
+                                        <div class="modal-actions">
+                                            <button type="submit" name="update_incident" class="btn-primary">Save Edit</button>
+                                            <button type="button" class="btn-secondary" onclick="parent.closeGlobalModal()">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
                             <?php endif; ?>
                         </td>
                     </tr>

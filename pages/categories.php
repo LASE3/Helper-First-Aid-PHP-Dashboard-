@@ -154,7 +154,7 @@ $categories = $stmt->fetchAll();
                     <option value="low">Low</option>
                     <option value="medium" selected>Medium</option>
                     <option value="high">High</option>
-                    <option value="critical">Critical</option>
+                    <option value="extreme">Extreme</option>
                 </select>
             </div>
 
@@ -238,7 +238,7 @@ $categories = $stmt->fetchAll();
                                                 <div>
                                                     <label>Urgency Level</label>
                                                     <select name="urgency_level">
-                                                        <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
+                                                        <?php foreach (['low', 'medium', 'high', 'extreme'] as $level): ?>
                                                             <option value="<?= $level ?>" <?= (string)$row['urgency_level'] === $level ? 'selected' : '' ?>>
                                                                 <?= ucfirst($level) ?>
                                                             </option>

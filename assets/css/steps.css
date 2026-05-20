@@ -1,4 +1,6 @@
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 
 body {
     font-family: Arial, sans-serif;
@@ -8,9 +10,14 @@ body {
     color: #172033;
 }
 
-h2, h3 { margin: 0 0 14px; }
+h2,
+h3 {
+    margin: 0 0 14px;
+}
 
-h2 { font-size: 28px; }
+h2 {
+    font-size: 28px;
+}
 
 h3 {
     font-size: 20px;
@@ -24,10 +31,12 @@ h3 {
     border-radius: 14px;
     padding: 18px;
     margin-bottom: 18px;
-    box-shadow: 0 3px 12px rgba(15,23,42,.06);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
 }
 
-.version-box { line-height: 1.7; }
+.version-box {
+    line-height: 1.7;
+}
 
 label {
     font-weight: 700;
@@ -135,10 +144,11 @@ table {
     background: #fff;
     border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 3px 12px rgba(15,23,42,.06);
+    box-shadow: 0 3px 12px rgba(15, 23, 42, .06);
 }
 
-th, td {
+th,
+td {
     padding: 12px;
     border-bottom: 1px solid #e5e7eb;
     text-align: left;
@@ -151,14 +161,18 @@ th {
     font-weight: 700;
 }
 
-tr:hover td { background: #f8fafc; }
+tr:hover td {
+    background: #f8fafc;
+}
 
 img {
     border-radius: 8px;
     border: 1px solid #e5e7eb;
 }
 
-.table-wrap { overflow-x: auto; }
+.table-wrap {
+    overflow-x: auto;
+}
 
 .action-buttons {
     display: flex;
@@ -204,7 +218,9 @@ input[type="file"]::file-selector-button:hover {
     padding-bottom: 14px;
 }
 
-.modal-header h3 { margin: 0 0 6px; }
+.modal-header h3 {
+    margin: 0 0 6px;
+}
 
 .modal-header p {
     margin: 0;
@@ -278,8 +294,41 @@ input[type="file"]::file-selector-button:hover {
 }
 
 @media (max-width: 900px) {
+
     .row,
     .global-modal-box .row {
         grid-template-columns: 1fr;
     }
+}
+
+.category-step-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 18px;
+    margin: 18px 0;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, .08);
+}
+
+.category-step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.category-step-header h3 {
+    margin: 0 0 4px;
+}
+
+.category-step-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.empty-card {
+    color: #64748b;
+    font-weight: 700;
 }
