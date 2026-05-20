@@ -43,21 +43,21 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
             <nav class="sidebar-menu">
                 <?php if (can('categories.view')): ?>
                     <a href="categories.php" target="contentFrame" class="nav-link">
-                        <span class="menu-icon">▦</span>
+                        <span class="menu-icon">📑</span>
                         <span class="menu-text">Categories</span>
                     </a>
                 <?php endif; ?>
 
                 <?php if (can('steps.view')): ?>
                     <a href="steps.php" target="contentFrame" class="nav-link">
-                        <span class="menu-icon">☑</span>
+                        <span class="menu-icon">🧾</span>
                         <span class="menu-text">Steps</span>
                     </a>
                 <?php endif; ?>
 
                 <?php if (can('incidents.view')): ?>
                     <a href="incidents.php" target="contentFrame" class="nav-link active">
-                        <span class="menu-icon">⚕</span>
+                        <span class="menu-icon">📊</span>
                         <span class="menu-text">Incidents</span>
                     </a>
                 <?php endif; ?>
@@ -71,7 +71,7 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
 
                 <?php if (can('users.view')): ?>
                     <a href="users.php" target="contentFrame" class="nav-link">
-                        <span class="menu-icon">⊙</span>
+                        <span class="menu-icon">👥</span>
                         <span class="menu-text">Users</span>
                     </a>
                 <?php endif; ?>

@@ -204,54 +204,58 @@ $totalIncidents = count($incidents);
         </div>
     </div>
 
-    <h3>Filter Incidents</h3>
-    <form method="GET">
-        <div class="filter-row">
-            <div>
-                <label>Category</label>
-                <select name="category">
-                    <option value="">All Categories</option>
-                    <?php foreach ($categories as $c): ?>
-                        <option value="<?= htmlspecialchars((string)$c['CODE']) ?>"
-                            <?= $filterCategory === (string)$c['CODE'] ? 'selected' : '' ?>>
-                            <?= htmlspecialchars((string)$c['name_en']) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
+    <div class="card">
+        <h3>Filter Incidents</h3>
+
+        <form method="GET" class="filter-form">
+            <div class="form-grid">
+                <div>
+                    <label>Category</label>
+                    <select name="category">
+                        <option value="">All Categories</option>
+                        <?php foreach ($categories as $c): ?>
+                            <option value="<?= htmlspecialchars((string)$c['CODE']) ?>"
+                                <?= $filterCategory === (string)$c['CODE'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars((string)$c['name_en']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Urgency</label>
+                    <select name="urgency">
+                        <option value="">All Urgency</option>
+                        <option value="low" <?= $filterUrgency === 'low' ? 'selected' : '' ?>>Low</option>
+                        <option value="medium" <?= $filterUrgency === 'medium' ? 'selected' : '' ?>>Medium</option>
+                        <option value="high" <?= $filterUrgency === 'high' ? 'selected' : '' ?>>High</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Start Date</label>
+                    <input type="date" name="start_date" value="<?= htmlspecialchars($filterStartDate) ?>">
+                </div>
+
+                <div>
+                    <label>End Date</label>
+                    <input type="date" name="end_date" value="<?= htmlspecialchars($filterEndDate) ?>">
+                </div>
             </div>
 
-            <div>
-                <label>Urgency</label>
-                <select name="urgency">
-                    <option value="">All Urgency</option>
-                    <option value="low" <?= $filterUrgency === 'low' ? 'selected' : '' ?>>Low</option>
-                    <option value="medium" <?= $filterUrgency === 'medium' ? 'selected' : '' ?>>Medium</option>
-                    <option value="high" <?= $filterUrgency === 'high' ? 'selected' : '' ?>>High</option>
-                </select>
+            <div class="filter-actions">
+                <button type="submit" class="btn-primary">Apply Filters</button>
+                <a href="incidents.php" class="clear-link">Clear Filters</a>
             </div>
-            <div>
-                <label>Start Date</label>
-                <input type="date" name="start_date" value="<?= htmlspecialchars($filterStartDate) ?>">
-            </div>
+        </form>
+    </div>
 
-            <div>
-                <label>End Date</label>
-                <input type="date" name="end_date" value="<?= htmlspecialchars($filterEndDate) ?>">
-            </div>
-        </div>
-
-        <div class="actions">
-            <button type="submit" class="small-btn">Apply Filters</button>
-            <a href="incidents.php">Clear Filters</a>
-        </div>
-    </form>
-
-    <hr>
-
-    <a href="export_incidents.php?category=<?= urlencode($filterCategory) ?>&urgency=<?= urlencode($filterUrgency) ?>&start_date=<?= urlencode($filterStartDate) ?>&end_date=<?= urlencode($filterEndDate) ?>"
-        class="small-btn">
-        Export CSV
-    </a>
+    <div class="export-row">
+        <a href="export_incidents.php?category=<?= urlencode($filterCategory) ?>&urgency=<?= urlencode($filterUrgency) ?>&start_date=<?= urlencode($filterStartDate) ?>&end_date=<?= urlencode($filterEndDate) ?>"
+            class="btn-primary">
+            Export CSV
+        </a>
+    </div>
 
     <h2 class="section-title">Incidents List</h2>
 
