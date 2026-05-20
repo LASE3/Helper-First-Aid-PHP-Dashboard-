@@ -155,11 +155,11 @@
    }
 
    .incidents-table-card {
-       background: #ffffff;
+       background: #fff;
        border-radius: 14px;
        padding: 18px;
        box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-       border: 1px solid #e2e8f0;
+       border: 1px solid #e5e7eb;
        margin-top: 18px;
        overflow-x: auto;
    }
