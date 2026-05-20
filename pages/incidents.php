@@ -19,6 +19,68 @@ if (!isset($_SESSION['admin'])) {
 $message = "";
 $error = "";
 
+try {
+    if (isset($_POST['update_incident'])) {
+        require_perm('incidents.edit');
+
+        $id = (int)($_POST['id'] ?? 0);
+
+        if ($id <= 0) {
+            $error = "Invalid incident ID.";
+        } else {
+            $stmt = $pdo->prepare("
+                UPDATE incidents
+                SET category_code = :category_code,
+                    urgency_level = :urgency_level,
+                    confidence = :confidence,
+                    manual_override = :manual_override,
+                    lang = :lang,
+                    input_text = :input_text,
+                    lat = :lat,
+                    lng = :lng,
+                    occurred_at = :occurred_at
+                WHERE id = :id
+            ");
+
+            $stmt->execute([
+                ':id' => $id,
+                ':category_code' => trim($_POST['category_code'] ?? ''),
+                ':urgency_level' => trim($_POST['urgency_level'] ?? ''),
+                ':confidence' => ($_POST['confidence'] ?? '') === '' ? null : (float)$_POST['confidence'],
+                ':manual_override' => isset($_POST['manual_override']) ? 1 : 0,
+                ':lang' => trim($_POST['lang'] ?? ''),
+                ':input_text' => trim($_POST['input_text'] ?? ''),
+                ':lat' => ($_POST['lat'] ?? '') === '' ? null : (float)$_POST['lat'],
+                ':lng' => ($_POST['lng'] ?? '') === '' ? null : (float)$_POST['lng'],
+                ':occurred_at' => trim($_POST['occurred_at'] ?? date('Y-m-d H:i:s')),
+            ]);
+
+            $message = "Incident updated successfully.";
+        }
+    }
+
+    if (isset($_POST['delete_incident'])) {
+        require_perm('incidents.delete');
+
+        $id = (int)($_POST['id'] ?? 0);
+
+        if ($id <= 0) {
+            $error = "Invalid incident ID.";
+        } else {
+            $imgDelete = $pdo->prepare("DELETE FROM incident_images WHERE incident_id = ?");
+            $imgDelete->execute([$id]);
+
+            $stmt = $pdo->prepare("DELETE FROM incidents WHERE id = ?");
+            $stmt->execute([$id]);
+
+            $message = "Incident deleted successfully.";
+        }
+    }
+} catch (PDOException $e) {
+    $error = "Database error. The incident operation could not be completed.";
+}
+
+
 /*
 |--------------------------------------------------------------------------
 | Filters
@@ -36,6 +98,14 @@ $filterEndDate = trim($_GET['end_date'] ?? '');
 */
 $catStmt = $pdo->query("SELECT * FROM categories ORDER BY name_en ASC");
 $categories = $catStmt->fetchAll();
+
+$editIncident = null;
+if (isset($_GET['edit_incident']) && can('incidents.edit')) {
+    $editStmt = $pdo->prepare("SELECT * FROM incidents WHERE id = ?");
+    $editStmt->execute([(int)$_GET['edit_incident']]);
+    $editIncident = $editStmt->fetch();
+}
+
 
 /*
 |--------------------------------------------------------------------------
@@ -158,7 +228,8 @@ $totalIncidents = count($incidents);
     <meta charset="UTF-8">
     <title>Incidents</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="../assets/css/incidents.css">
+    <link rel="stylesheet" href="../assets/css/incidents.css?v=20260520">
+    <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
 
 <body>
@@ -175,6 +246,82 @@ $totalIncidents = count($incidents);
     <?php if ($error !== ""): ?>
         <div class="error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
+
+    <?php if ($editIncident): ?>
+        <div class="card">
+            <h3>Edit Incident #<?= htmlspecialchars((string)$editIncident['id']) ?></h3>
+
+            <form method="POST" class="js-confirm-save">
+                <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editIncident['id']) ?>">
+
+                <div class="form-grid">
+                    <div>
+                        <label>Category</label>
+                        <select name="category_code" required>
+                            <?php foreach ($categories as $c): ?>
+                                <option value="<?= htmlspecialchars((string)$c['CODE']) ?>"
+                                    <?= (string)$editIncident['category_code'] === (string)$c['CODE'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars((string)$c['name_en']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Urgency</label>
+                        <select name="urgency_level">
+                            <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
+                                <option value="<?= $level ?>" <?= (string)$editIncident['urgency_level'] === $level ? 'selected' : '' ?>>
+                                    <?= ucfirst($level) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>Confidence</label>
+                        <input type="number" step="0.01" name="confidence" value="<?= htmlspecialchars((string)($editIncident['confidence'] ?? '')) ?>">
+                    </div>
+
+                    <div>
+                        <label>Language</label>
+                        <input type="text" name="lang" value="<?= htmlspecialchars((string)($editIncident['lang'] ?? '')) ?>">
+                    </div>
+
+                    <div>
+                        <label>Latitude</label>
+                        <input type="text" name="lat" value="<?= htmlspecialchars((string)($editIncident['lat'] ?? '')) ?>">
+                    </div>
+
+                    <div>
+                        <label>Longitude</label>
+                        <input type="text" name="lng" value="<?= htmlspecialchars((string)($editIncident['lng'] ?? '')) ?>">
+                    </div>
+
+                    <div>
+                        <label>Occurred At</label>
+                        <input type="text" name="occurred_at" value="<?= htmlspecialchars((string)($editIncident['occurred_at'] ?? '')) ?>">
+                    </div>
+
+                    <div>
+                        <label>
+                            <input type="checkbox" name="manual_override" <?= (int)($editIncident['manual_override'] ?? 0) === 1 ? 'checked' : '' ?>>
+                            Manual Override
+                        </label>
+                    </div>
+                </div>
+
+                <label>Input Text</label>
+                <textarea name="input_text"><?= htmlspecialchars((string)($editIncident['input_text'] ?? '')) ?></textarea>
+
+                <div class="filter-actions">
+                    <button type="submit" name="update_incident" class="btn-primary">Save Edit</button>
+                    <a href="incidents.php" class="btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    <?php endif; ?>
+
     <div class="stats-row">
         <div class="stat-card">
             <h4>Total Incidents</h4>
@@ -279,7 +426,7 @@ $totalIncidents = count($incidents);
                 <th>Images</th>
                 <th>Date</th>
                 <th>Sync</th>
-                <th>Action</th>
+                <th>Actions</th>
             </tr>
 
             <?php if (count($incidents) > 0): ?>
@@ -336,10 +483,23 @@ $totalIncidents = count($incidents);
 
                             <?php endif; ?>
                         </td>
-                        <td>
-                            <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>">
+                        <td class="action-buttons">
+                            <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>" class="btn-secondary">
                                 View
                             </a>
+
+                            <?php if (can('incidents.edit')): ?>
+                                <a href="incidents.php?edit_incident=<?= urlencode((string)$row['id']) ?>" class="btn-secondary">
+                                    Edit
+                                </a>
+                            <?php endif; ?>
+
+                            <?php if (can('incidents.delete')): ?>
+                                <form method="POST" class="inline-form js-confirm-delete">
+                                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
+                                    <button type="submit" name="delete_incident" class="btn-danger">Delete</button>
+                                </form>
+                            <?php endif; ?>
                         </td>
                     </tr>
                 <?php endforeach; ?>

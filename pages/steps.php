@@ -9,23 +9,9 @@ require_once __DIR__ . '/content_version_helper.php';
 
 require_perm('steps.view');
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-if (!isset($_SESSION['admin'])) {
-    header("Location: login.php");
-    exit();
-}
-
 $message = "";
 $error = "";
 
-/*
-|--------------------------------------------------------------------------
-| Ensure content_meta row exists
-|--------------------------------------------------------------------------
-*/
 $checkMetaStmt = $pdo->prepare("SELECT COUNT(*) AS total FROM content_meta");
 $checkMetaStmt->execute();
 $checkMeta = $checkMetaStmt->fetch();
@@ -35,169 +21,193 @@ if ((int)$checkMeta['total'] === 0) {
     $insertMetaStmt->execute();
 }
 
-/*
-|--------------------------------------------------------------------------
-| Manual version update button
-|--------------------------------------------------------------------------
-*/
-if (isset($_POST['update_version'])) {
-    bump_content_version(
-        $pdo,
-        $_SESSION['admin_id'] ?? null,
-        'Manual content version update'
-    );
+try {
+    if (isset($_POST['update_version'])) {
+        bump_content_version($pdo, $_SESSION['admin_id'] ?? null, 'Manual content version update');
+        $message = "Content version updated successfully.";
+    }
 
-    $message = "Content version updated successfully.";
-}
-/*
-|--------------------------------------------------------------------------
-| Add Step
-|--------------------------------------------------------------------------
-*/
-if (isset($_POST['add'])) {
-    $categoryID = trim($_POST['category_id'] ?? '');
-    $bodyEn = trim($_POST['body_en'] ?? '');
-    $bodyAr = trim($_POST['body_ar'] ?? '');
-    $stepNumber = trim($_POST['step_number'] ?? '');
+    if (isset($_POST['add'])) {
+        require_perm('steps.create');
 
-    if ($categoryID === '' || $bodyEn === '' || $bodyAr === '' || $stepNumber === '') {
-        $error = "Category, step number, English body, and Arabic body are required.";
-    } elseif (!ctype_digit($categoryID) || !ctype_digit($stepNumber)) {
-        $error = "Category and step number must be valid numbers.";
-    } else {
-        $image_name = "";
+        $categoryID = trim($_POST['category_id'] ?? '');
+        $bodyEn = trim($_POST['body_en'] ?? '');
+        $bodyAr = trim($_POST['body_ar'] ?? '');
+        $stepNumber = trim($_POST['step_number'] ?? '');
 
-        if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
-            $uploadDir = __DIR__ . '/../uploads/steps/';
+        if ($categoryID === '' || $bodyEn === '' || $bodyAr === '' || $stepNumber === '') {
+            $error = "Category, step number, English body, and Arabic body are required.";
+        } elseif (!ctype_digit($categoryID) || !ctype_digit($stepNumber)) {
+            $error = "Category and step number must be valid numbers.";
+        } else {
+            $image_name = "";
 
-            if (!is_dir($uploadDir)) {
-                mkdir($uploadDir, 0777, true);
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+                $uploadDir = __DIR__ . '/../uploads/steps/';
+
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
+
+                $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+                if (in_array($ext, $allowed, true)) {
+                    $image_name = uniqid('step_', true) . "." . $ext;
+                    move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $image_name);
+                } else {
+                    $error = "Invalid image type. Allowed: jpg, jpeg, png, gif, webp.";
+                }
             }
 
-            $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
-            $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if ($error === "") {
+                $catCodeStmt = $pdo->prepare("SELECT CODE FROM categories WHERE id = ?");
+                $catCodeStmt->execute([(int)$categoryID]);
+                $categoryCode = (string)$catCodeStmt->fetchColumn();
 
-            if (in_array($ext, $allowed, true)) {
-                $image_name = uniqid('step_', true) . "." . $ext;
-                move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $image_name);
-            } else {
-                $error = "Invalid image type. Allowed: jpg, jpeg, png, gif, webp.";
+                $stmt = $pdo->prepare("
+                    INSERT INTO guidance_steps
+                    (category_id, category_code, step_no, title_en, title_ar, body_en, body_ar, warning_en, warning_ar, image_path, is_active)
+                    VALUES
+                    (:category_id, :category_code, :step_no, :title_en, :title_ar, :body_en, :body_ar, :warning_en, :warning_ar, :image_path, :is_active)
+                ");
+
+                $stmt->execute([
+                    ':category_id' => (int)$categoryID,
+                    ':category_code' => $categoryCode,
+                    ':step_no' => (int)$stepNumber,
+                    ':title_en' => trim($_POST['title_en'] ?? ''),
+                    ':title_ar' => trim($_POST['title_ar'] ?? ''),
+                    ':body_en' => $bodyEn,
+                    ':body_ar' => $bodyAr,
+                    ':warning_en' => trim($_POST['warning_en'] ?? ''),
+                    ':warning_ar' => trim($_POST['warning_ar'] ?? ''),
+                    ':image_path' => $image_name,
+                    ':is_active' => isset($_POST['is_active']) ? 1 : 0
+                ]);
+
+                $newStepId = (int)$pdo->lastInsertId();
+                log_admin_action($pdo, 'create_step', 'step', $newStepId, 'Admin added a new step');
+                bump_content_version($pdo, $_SESSION['admin_id'] ?? null, 'Admin added a new guidance step');
+
+                $message = "Step added successfully, and content version updated.";
             }
         }
+    }
 
-        if ($error === "") {
-            $stmt = $pdo->prepare("
-                INSERT INTO guidance_steps 
-                (
-                    category_id,
-                    category_code,
-                    step_no,
-                    title_en,
-                    title_ar,
-                    body_en,
-                    body_ar,
-                    warning_en,
-                    warning_ar,
-                    image_path,
-                    is_active
-                )
-                VALUES
-                (
-                    :category_id,
-                    :category_code,
-                    :step_no,
-                    :title_en,
-                    :title_ar,
-                    :body_en,
-                    :body_ar,
-                    :warning_en,
-                    :warning_ar,
-                    :image_path,
-                    :is_active
-                )
-            ");
+    if (isset($_POST['update_step'])) {
+        require_perm('steps.edit');
 
-            $catCodeStmt = $pdo->prepare("
-                 SELECT code 
-                 FROM categories 
-                 WHERE id = ?
-             ");
+        $id = (int)($_POST['id'] ?? 0);
+        $categoryID = (int)($_POST['category_id'] ?? 0);
+        $stepNumber = (int)($_POST['step_number'] ?? 0);
 
-            $catCodeStmt->execute([(int)$categoryID]);
+        if ($id <= 0 || $categoryID <= 0 || $stepNumber <= 0) {
+            $error = "Step ID, category, and step number are required.";
+        } else {
+            $catCodeStmt = $pdo->prepare("SELECT CODE FROM categories WHERE id = ?");
+            $catCodeStmt->execute([$categoryID]);
+            $categoryCode = (string)$catCodeStmt->fetchColumn();
 
-            $categoryCode = $catCodeStmt->fetchColumn();
-
-            $stmt->execute([
-                ':category_id' => (int)$categoryID,
+            $imageSql = "";
+            $params = [
+                ':id' => $id,
+                ':category_id' => $categoryID,
                 ':category_code' => $categoryCode,
-                ':step_no' => (int)$stepNumber,
+                ':step_no' => $stepNumber,
                 ':title_en' => trim($_POST['title_en'] ?? ''),
                 ':title_ar' => trim($_POST['title_ar'] ?? ''),
                 ':body_en' => trim($_POST['body_en'] ?? ''),
                 ':body_ar' => trim($_POST['body_ar'] ?? ''),
                 ':warning_en' => trim($_POST['warning_en'] ?? ''),
                 ':warning_ar' => trim($_POST['warning_ar'] ?? ''),
-                ':image_path' => $image_name,
-                ':is_active' => isset($_POST['is_active']) ? 1 : 0
-            ]);
+                ':is_active' => isset($_POST['is_active']) ? 1 : 0,
+            ];
 
-            $newStepId = (int)$pdo->lastInsertId();
-            log_admin_action(
-                $pdo,
-                'create_step',
-                'step',
-                $newStepId,
-                'Admin added a new step'
-            );
+            if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+                $uploadDir = __DIR__ . '/../uploads/steps/';
 
-            bump_content_version(
-                $pdo,
-                $_SESSION['admin_id'] ?? null,
-                'Admin added a new guidance step'
-            );
+                if (!is_dir($uploadDir)) {
+                    mkdir($uploadDir, 0777, true);
+                }
 
-            $message = "Step added successfully, and content version updated.";
+                $ext = strtolower(pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION));
+                $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
+                if (in_array($ext, $allowed, true)) {
+                    $image_name = uniqid('step_', true) . "." . $ext;
+                    move_uploaded_file($_FILES['image']['tmp_name'], $uploadDir . $image_name);
+                    $imageSql = ", image_path = :image_path";
+                    $params[':image_path'] = $image_name;
+                } else {
+                    $error = "Invalid image type. Allowed: jpg, jpeg, png, gif, webp.";
+                }
+            }
+
+            if ($error === "") {
+                $stmt = $pdo->prepare("
+                    UPDATE guidance_steps
+                    SET category_id = :category_id,
+                        category_code = :category_code,
+                        step_no = :step_no,
+                        title_en = :title_en,
+                        title_ar = :title_ar,
+                        body_en = :body_en,
+                        body_ar = :body_ar,
+                        warning_en = :warning_en,
+                        warning_ar = :warning_ar,
+                        is_active = :is_active
+                        $imageSql
+                    WHERE id = :id
+                ");
+
+                $stmt->execute($params);
+                log_admin_action($pdo, 'edit_step', 'step', $id, 'Admin edited a step');
+                bump_content_version($pdo, $_SESSION['admin_id'] ?? null, 'Admin edited a guidance step');
+                $message = "Step updated successfully.";
+            }
         }
     }
+
+    if (isset($_POST['delete_step'])) {
+        require_perm('steps.delete');
+
+        $id = (int)($_POST['id'] ?? 0);
+
+        if ($id <= 0) {
+            $error = "Invalid step ID.";
+        } else {
+            $stmt = $pdo->prepare("DELETE FROM guidance_steps WHERE id = ?");
+            $stmt->execute([$id]);
+
+            log_admin_action($pdo, 'delete_step', 'step', $id, 'Admin deleted a step');
+            bump_content_version($pdo, $_SESSION['admin_id'] ?? null, 'Admin deleted a guidance step');
+            $message = "Step deleted successfully.";
+        }
+    }
+} catch (PDOException $e) {
+    $error = "Database error. The operation could not be completed.";
 }
-/*
-|--------------------------------------------------------------------------
-| Load current content version
-|--------------------------------------------------------------------------
-*/
-$metaStmt = $pdo->prepare("
-    SELECT content_version, updated_at 
-    FROM content_meta 
-    WHERE id = 1
-");
+
+$metaStmt = $pdo->prepare("SELECT content_version, updated_at FROM content_meta WHERE id = 1");
 $metaStmt->execute();
 $contentMeta = $metaStmt->fetch();
 
-/*
-|--------------------------------------------------------------------------
-| Load categories
-|--------------------------------------------------------------------------
-*/
-$catStmt = $pdo->prepare("
-    SELECT id, code, name_en 
-    FROM categories 
-    ORDER BY name_en ASC
-");
+$catStmt = $pdo->prepare("SELECT id, CODE, name_en FROM categories ORDER BY name_en ASC");
 $catStmt->execute();
 $categories = $catStmt->fetchAll();
 
-/*
-|--------------------------------------------------------------------------
-| Load steps
-|--------------------------------------------------------------------------
-*/
+$editStep = null;
+if (isset($_GET['edit_step']) && can('steps.edit')) {
+    $editStmt = $pdo->prepare("SELECT * FROM guidance_steps WHERE id = ?");
+    $editStmt->execute([(int)$_GET['edit_step']]);
+    $editStep = $editStmt->fetch();
+}
+
 $stmt = $pdo->prepare("
-    SELECT 
-        guidance_steps.*,
-        categories.name_en AS category_name
+    SELECT guidance_steps.*, categories.name_en AS category_name
     FROM guidance_steps
-    LEFT JOIN categories 
-        ON guidance_steps.category_id = categories.id
+    LEFT JOIN categories ON guidance_steps.category_id = categories.id
     ORDER BY guidance_steps.category_id ASC, guidance_steps.step_no ASC
 ");
 $stmt->execute();
@@ -210,7 +220,8 @@ $steps = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Steps Dashboard</title>
-    <link rel="stylesheet" href="../assets/css/steps.css">
+    <link rel="stylesheet" href="../assets/css/steps.css?v=20260520">
+    <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
 
 <body>
@@ -233,12 +244,66 @@ $steps = $stmt->fetchAll();
         <?= htmlspecialchars((string)($contentMeta['updated_at'] ?? '')) ?>
     </div>
 
-    <h3>Manual Content Version Update</h3>
     <form method="POST">
         <button type="submit" name="update_version" class="small-btn">Update Content Version</button>
     </form>
 
-    <hr>
+    <?php if ($editStep): ?>
+        <h3>Edit Step</h3>
+        <form method="POST" enctype="multipart/form-data" class="js-confirm-save">
+            <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editStep['id']) ?>">
+
+            <div class="row">
+                <div>
+                    <label>Category</label>
+                    <select name="category_id" required>
+                        <?php foreach ($categories as $c): ?>
+                            <option value="<?= htmlspecialchars((string)$c['id']) ?>"
+                                <?= (int)$editStep['category_id'] === (int)$c['id'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars((string)$c['name_en']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+
+                <div>
+                    <label>Step Number</label>
+                    <input type="number" name="step_number" value="<?= htmlspecialchars((string)$editStep['step_no']) ?>" required>
+                </div>
+            </div>
+
+            <label>Title (EN)</label>
+            <input type="text" name="title_en" value="<?= htmlspecialchars((string)$editStep['title_en']) ?>" required>
+
+            <label>Title (AR)</label>
+            <input type="text" name="title_ar" value="<?= htmlspecialchars((string)$editStep['title_ar']) ?>" required>
+
+            <label>Body (EN)</label>
+            <textarea name="body_en" required><?= htmlspecialchars((string)$editStep['body_en']) ?></textarea>
+
+            <label>Body (AR)</label>
+            <textarea name="body_ar" required><?= htmlspecialchars((string)$editStep['body_ar']) ?></textarea>
+
+            <label>Warning (EN)</label>
+            <textarea name="warning_en"><?= htmlspecialchars((string)$editStep['warning_en']) ?></textarea>
+
+            <label>Warning (AR)</label>
+            <textarea name="warning_ar"><?= htmlspecialchars((string)$editStep['warning_ar']) ?></textarea>
+
+            <label>Replace Image</label>
+            <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+
+            <label>
+                <input type="checkbox" name="is_active" <?= (int)$editStep['is_active'] === 1 ? 'checked' : '' ?>>
+                Active
+            </label>
+
+            <div class="action-buttons">
+                <button type="submit" name="update_step" class="small-btn">Save Edit</button>
+                <a href="steps.php" class="btn-secondary">Cancel</a>
+            </div>
+        </form>
+    <?php endif; ?>
 
     <h3>Add Step</h3>
     <form method="POST" enctype="multipart/form-data">
@@ -254,50 +319,41 @@ $steps = $stmt->fetchAll();
                     <?php endforeach; ?>
                 </select>
             </div>
+
             <div>
                 <label>Step Number</label>
                 <input type="number" name="step_number" placeholder="Step Number" required>
             </div>
         </div>
-        <div>
-            <label>Title (EN)</label>
-            <input type="text" name="title_en" placeholder="Title (EN)" required>
-        </div>
-        <div>
-            <label>Title (AR)</label>
-            <input type="text" name="title_ar" placeholder="Title (AR)" required>
-        </div>
-        <div>
-            <label>Body (EN)</label>
-            <textarea name="body_en" placeholder="Body (EN)"></textarea>
-        </div>
-        <div>
-            <label>Body (AR)</label>
-            <textarea name="body_ar" placeholder="Body (AR)"></textarea>
-        </div>
-        <div>
-            <label>Warning (EN)</label>
-            <textarea name="warning_en" placeholder="Warning (EN)"></textarea>
-        </div>
-        <div>
-            <label>Warning (AR)</label>
-            <textarea name="warning_ar" placeholder="Warning (AR)"></textarea>
-        </div>
-        <div class="row">
-            <div>
-                <label>Image</label>
-                <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
-            </div>
-        </div>
-        <!-- <div></div>  -->
+
+        <label>Title (EN)</label>
+        <input type="text" name="title_en" placeholder="Title (EN)" required>
+
+        <label>Title (AR)</label>
+        <input type="text" name="title_ar" placeholder="Title (AR)" required>
+
+        <label>Body (EN)</label>
+        <textarea name="body_en" placeholder="Body (EN)" required></textarea>
+
+        <label>Body (AR)</label>
+        <textarea name="body_ar" placeholder="Body (AR)" required></textarea>
+
+        <label>Warning (EN)</label>
+        <textarea name="warning_en" placeholder="Warning (EN)"></textarea>
+
+        <label>Warning (AR)</label>
+        <textarea name="warning_ar" placeholder="Warning (AR)"></textarea>
+
+        <label>Image</label>
+        <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+
         <label>
             <input type="checkbox" name="is_active" checked>
             Active
         </label>
+
         <button type="submit" name="add" class="small-btn">Add Step</button>
     </form>
-
-    <hr>
 
     <h3>Steps List</h3>
     <div class="table-wrap">
@@ -309,6 +365,7 @@ $steps = $stmt->fetchAll();
                 <th>Title (AR)</th>
                 <th>Image</th>
                 <th>Step Number</th>
+                <th>Actions</th>
             </tr>
 
             <?php if (count($steps) > 0): ?>
@@ -326,6 +383,18 @@ $steps = $stmt->fetchAll();
                             <?php endif; ?>
                         </td>
                         <td><?= htmlspecialchars((string)($row['step_no'] ?? '')) ?></td>
+                        <td class="action-buttons">
+                            <?php if (can('steps.edit')): ?>
+                                <a href="steps.php?edit_step=<?= urlencode((string)$row['id']) ?>" class="btn-secondary">Edit</a>
+                            <?php endif; ?>
+
+                            <?php if (can('steps.delete')): ?>
+                                <form method="POST" class="inline-form js-confirm-delete">
+                                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
+                                    <button type="submit" name="delete_step" class="btn-danger">Delete</button>
+                                </form>
+                            <?php endif; ?>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
             <?php else: ?>
@@ -336,8 +405,6 @@ $steps = $stmt->fetchAll();
         </table>
     </div>
 
-    <br>
-    
 </body>
 
 </html>

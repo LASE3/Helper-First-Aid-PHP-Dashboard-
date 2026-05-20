@@ -108,15 +108,29 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
 
             <section class="dashboard-content">
                 <iframe
+                    id="contentFrame"
                     name="contentFrame"
-                    src="incidents.php"
+                    src="<?= htmlspecialchars((string)($_COOKIE['firstaid_last_page'] ?? 'incidents.php')) ?>"
                     title="Dashboard content">
                 </iframe>
             </section>
         </main>
 
     </div>
-    <script src="../assets/js/dashboard.js"></script>
+
+    <div class="session-modal" id="sessionModal" aria-hidden="true">
+        <div class="session-modal-box">
+            <h2>Are you still there?</h2>
+            <p>Your session will end soon because you were inactive.</p>
+            <div class="session-actions">
+                <button type="button" id="stayLoggedInBtn">Yes, keep me logged in</button>
+                <a href="logout.php" target="_top">Logout</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/dashboard.js?v=20260520"></script>
+    <script src="../assets/js/session-timeout.js?v=20260520"></script>
 </body>
 
 </html>

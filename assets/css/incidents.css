@@ -274,3 +274,44 @@
    .export-row {
        margin-bottom: 22px;
    }
+
+   .action-buttons {
+       display: flex;
+       gap: 8px;
+       align-items: center;
+       flex-wrap: wrap;
+   }
+
+   .inline-form {
+       display: inline-block;
+       margin: 0;
+   }
+
+   .btn-secondary,
+   .btn-danger {
+       border: none;
+       border-radius: 8px;
+       padding: 9px 13px;
+       font-weight: 800;
+       cursor: pointer;
+       text-decoration: none;
+       display: inline-block;
+   }
+
+   .btn-secondary {
+       background: #eff6ff;
+       color: #2563eb;
+   }
+
+   .btn-secondary:hover {
+       background: #dbeafe;
+   }
+
+   .btn-danger {
+       background: #fee2e2;
+       color: #991b1b;
+   }
+
+   .btn-danger:hover {
+       background: #fecaca;
+   }

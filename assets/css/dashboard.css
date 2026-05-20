@@ -263,3 +263,62 @@ body {
     background: #eff6ff;
     color: #2563eb;
 }
+
+.session-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.session-modal.show {
+    display: flex;
+}
+
+.session-modal-box {
+    width: min(420px, 92vw);
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 26px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.25);
+    text-align: center;
+}
+
+.session-modal-box h2 {
+    margin: 0 0 10px;
+    color: #0f172a;
+}
+
+.session-modal-box p {
+    margin: 0 0 22px;
+    color: #64748b;
+}
+
+.session-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.session-actions button,
+.session-actions a {
+    border: none;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 11px 16px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.session-actions button {
+    background: #2563eb;
+    color: white;
+}
+
+.session-actions a {
+    background: #fee2e2;
+    color: #991b1b;
+}
