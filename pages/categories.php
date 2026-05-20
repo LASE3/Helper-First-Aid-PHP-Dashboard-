@@ -44,6 +44,7 @@ if (isset($_POST['add'])) {
         ]);
 
         $success = "Category added successfully.";
+
         bump_content_version(
             $pdo,
             $_SESSION['admin_id'] ?? null,
@@ -57,69 +58,88 @@ $stmt = $pdo->prepare("
     FROM categories
     ORDER BY id DESC
 ");
-
 $stmt->execute();
 $categories = $stmt->fetchAll();
 ?>
-<html>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Categories</title>
+    <link rel="stylesheet" href="../assets/css/categories.css">
 </head>
 
 <body>
-    <h2>Categories</h2>
+
+    <div class="page-header">
+        <h2>Categories</h2>
+        <p>Manage emergency categories used by the Flutter app.</p>
+    </div>
 
     <?php if ($error !== ""): ?>
-        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+        <div class="alert error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
     <?php if ($success !== ""): ?>
-        <p style="color:green;"><?= htmlspecialchars($success) ?></p>
+        <div class="alert success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
 
-    <form method="POST">
-        <input type="text" name="code" placeholder="Category Code" required><br>
-        <input type="text" name="name_en" placeholder="English Name" required><br>
-        <input type="text" name="name_ar" placeholder="Arabic Name"><br>
+    <div class="card">
+        <h3>Add Category</h3>
 
-        <select name="urgency_level">
-            <option value="low">Low</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-            <option value="critical">Critical</option>
-        </select><br>
+        <form method="POST" class="category-form">
+            <div class="form-grid">
+                <input type="text" name="code" placeholder="Category Code" required>
+                <input type="text" name="name_en" placeholder="English Name" required>
+                <input type="text" name="name_ar" placeholder="Arabic Name">
 
-        <button name="add">Add Category</button>
-    </form>
+                <select name="urgency_level">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                    <option value="critical">Critical</option>
+                </select>
+            </div>
 
-    <hr>
+            <button type="submit" name="add" class="btn-primary">Add Category</button>
+        </form>
+    </div>
 
-    <table border="1" cellpadding="10">
-        <tr>
-            <th>ID</th>
-            <th>Code</th>
-            <th>English Name</th>
-            <th>Arabic Name</th>
-            <th>Urgency Level</th>
-        </tr>
+    <div class="card">
+        <h3>Categories List</h3>
 
-        <?php foreach ($categories as $row): ?>
-            <tr>
-                <td><?= htmlspecialchars((string)$row['id']) ?></td>
-                <td><?= htmlspecialchars((string)$row['CODE']) ?></td>
-                <td><?= htmlspecialchars((string)$row['name_en']) ?></td>
-                <td><?= htmlspecialchars((string)$row['name_ar']) ?></td>
-                <td><?= htmlspecialchars((string)$row['urgency_level']) ?></td>
-            </tr>
-        <?php endforeach; ?>
-    </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Code</th>
+                    <th>English Name</th>
+                    <th>Arabic Name</th>
+                    <th>Urgency Level</th>
+                </tr>
+            </thead>
 
-    <a href="dashboard.php">Back</a>
+            <tbody>
+                <?php foreach ($categories as $row): ?>
+                    <tr>
+                        <td><?= htmlspecialchars((string)$row['id']) ?></td>
+                        <td><?= htmlspecialchars((string)$row['CODE']) ?></td>
+                        <td><?= htmlspecialchars((string)$row['name_en']) ?></td>
+                        <td><?= htmlspecialchars((string)$row['name_ar']) ?></td>
+                        <td>
+                            <span class="urgency <?= htmlspecialchars((string)$row['urgency_level']) ?>">
+                                <?= htmlspecialchars((string)$row['urgency_level']) ?>
+                            </span>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+
+    <a href="dashboard.php" class="back-link">Back to Dashboard</a>
 
 </body>
 
