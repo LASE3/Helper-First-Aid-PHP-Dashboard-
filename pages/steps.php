@@ -271,34 +271,39 @@ foreach ($steps as $stepRow) {
                     <?php endforeach; ?>
                 </select>
             </div>
-
+            <br>
             <div>
                 <label>Step Number</label>
                 <input type="number" name="step_number" placeholder="Step Number" required>
             </div>
         </div>
-
         <label>Title (EN)</label>
         <input type="text" name="title_en" placeholder="Title (EN)" required>
-
+        <br>
+        <br>
         <label>Title (AR)</label>
         <input type="text" name="title_ar" placeholder="Title (AR)" required>
-
+        <br>
+        <br>
         <label>Body (EN)</label>
         <textarea name="body_en" placeholder="Body (EN)" required></textarea>
-
+        <br>
+        <br>
         <label>Body (AR)</label>
         <textarea name="body_ar" placeholder="Body (AR)" required></textarea>
-
+        <br>
+        <br>
         <label>Warning (EN)</label>
         <textarea name="warning_en" placeholder="Warning (EN)"></textarea>
-
+        <br>
+        <br>
         <label>Warning (AR)</label>
         <textarea name="warning_ar" placeholder="Warning (AR)"></textarea>
-
+        <br>
+        <br>
         <label>Image</label>
         <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
-
+        <br>
         <label>
             <input type="checkbox" name="is_active" checked>
             Active

@@ -101,7 +101,6 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
 
                 <div class="topbar-actions">
                     <a href="admin_profile.php" target="contentFrame" class="top-link">Profile</a>
-                    <a href="users.php" target="contentFrame" class="top-link">User Info</a>
                     <a href="logout.php" target="_top" class="logout-link">Logout</a>
                 </div>
             </header>
