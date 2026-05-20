@@ -1,10 +1,12 @@
 <?php
+
 declare(strict_types=1);
 require_once __DIR__ . '/../config/database.php';
 
 header('Content-Type: application/json; charset=utf-8');
 
-function respond(int $statusCode, array $data): void {
+function respond(int $statusCode, array $data): void
+{
     http_response_code($statusCode);
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
     exit;

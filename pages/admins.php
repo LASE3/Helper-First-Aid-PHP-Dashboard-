@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -6,11 +7,11 @@ require_once __DIR__ . '/../config/database.php';
 
 require_perm('admins.view');
 
-if (session_status()=== PHP_SESSION_NONE){
+if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-if(!isset($_SESSION['admin'])){
+if (!isset($_SESSION['admin'])) {
   header("Location: login.php");
   exit();
 }
@@ -190,7 +191,8 @@ function user_perm_ids(PDO $pdo, int $adminId): array
             <button class="btn" name="update_perms">Update permissions</button>
           </form>
         <?php else: ?>
-          <p class="small">The super_admin privileges cannot be modified, or you do not have the privilege to modify privileges.</p></p>
+          <p class="small">The super_admin privileges cannot be modified, or you do not have the privilege to modify privileges.</p>
+          </p>
         <?php endif; ?>
       </div>
     <?php endforeach; ?>

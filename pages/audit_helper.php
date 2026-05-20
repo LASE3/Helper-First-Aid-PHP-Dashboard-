@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 function log_admin_action(
@@ -24,5 +25,4 @@ function log_admin_action(
         ':details' => $details,
     ]);
 }
-
 ?>

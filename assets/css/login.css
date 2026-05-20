@@ -24,7 +24,7 @@ body {
 
 /* LEFT PANEL — blue gradient side */
 .left-panel {
-    width: 55%;                        
+    width: 55%;
     background: linear-gradient(160deg, #0b7df0, #071b82);
     color: white;
     position: relative;
@@ -32,8 +32,8 @@ body {
     flex-direction: column;
     justify-content: center;
     overflow: hidden;
-    padding-left: 80px;                
-    padding-right: 60px;               
+    padding-left: 80px;
+    padding-right: 60px;
 }
 
 .left-panel h1 {
@@ -86,18 +86,20 @@ body {
 
 /* RIGHT PANEL — white form side */
 .right-panel {
-    width: 40%;                        
+    width: 40%;
     background: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0;                  
+    padding: 0;
 }
+
 .form-box {
     width: 100%;
     max-width: 280px;
     margin-right: 100px;
 }
+
 .form-box h2 {
     font-size: 35px;
     margin: 0 0 6px;

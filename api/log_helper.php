@@ -1,7 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
-function api_log(string $message, array $context = []): void {
+function api_log(string $message, array $context = []): void
+{
     $logDir = __DIR__ . '/../logs';
 
     if (!is_dir($logDir)) {
@@ -16,5 +18,4 @@ function api_log(string $message, array $context = []): void {
 
     file_put_contents($logDir . '/api.log', $line . PHP_EOL, FILE_APPEND);
 }
-
 ?>

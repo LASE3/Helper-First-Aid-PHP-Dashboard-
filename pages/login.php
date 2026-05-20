@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 session_start();
@@ -58,6 +59,7 @@ if (isset($_POST['login'])) {
 ?>
 <!DOCTYPE html>
 <html lang='en'>
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Login</title>
@@ -66,40 +68,41 @@ if (isset($_POST['login'])) {
 
 <body>
     <div class="login-wrapper">
-       <div class="login-wrapper">
+        <div class="login-wrapper">
 
-    <div class="left-panel">
-        <h1>Admin Login</h1>
-        <p>The main Dashboard for Helper:First Aid</p>
-    <!--    <button class="read-more" type="button">Read More</button> -->
+            <div class="left-panel">
+                <h1>Admin Login</h1>
+                <p>The main Dashboard for Helper:First Aid</p>
+                <!--    <button class="read-more" type="button">Read More</button> -->
 
-        <div class="circle"></div>
-        <div class="circle two"></div>
-    </div>
+                <div class="circle"></div>
+                <div class="circle two"></div>
+            </div>
 
-    <div class="right-panel">
-        <div class="form-box">
-            <h2>Hello Again!</h2>
-            <p class="sub">Welcome Back</p>
+            <div class="right-panel">
+                <div class="form-box">
+                    <h2>Hello Again!</h2>
+                    <p class="sub">Welcome Back</p>
 
-            <?php if(!empty($error)): ?>
-                <div class="err"><?= htmlspecialchars($error) ?></div>
-            <?php endif; ?>
+                    <?php if (!empty($error)): ?>
+                        <div class="err"><?= htmlspecialchars($error) ?></div>
+                    <?php endif; ?>
 
-            <form method="POST">
-                <div class="input-wrap">
-                    <span>✉</span>
-                    <input type="email" name="email" placeholder="Email Address" required>
+                    <form method="POST">
+                        <div class="input-wrap">
+                            <span>✉</span>
+                            <input type="email" name="email" placeholder="Email Address" required>
+                        </div>
+                        <div class="input-wrap">
+                            <span>🔒</span>
+                            <input type="password" name="password" placeholder="Password" required>
+                        </div>
+                        <button class="login-btn" type="submit" name="login" value="1">Login</button>
+
+                        <a class="forgot" href="#">Forgot Password?</a>
+                    </form>
                 </div>
-                <div class="input-wrap">
-                    <span>🔒</span>
-                    <input type="password" name="password" placeholder="Password" required>
-                </div>
-                <button class="login-btn" type="submit" name="login" value="1">Login</button>
-
-                <a class="forgot" href="#">Forgot Password?</a>
-            </form>
-        </div>
-    </div>
+            </div>
 </body>
+
 </html>

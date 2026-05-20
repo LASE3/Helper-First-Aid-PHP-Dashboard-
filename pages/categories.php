@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -61,62 +62,65 @@ $stmt->execute();
 $categories = $stmt->fetchAll();
 ?>
 <html>
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Categories</title>
-    </head>
-    <body>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categories</title>
+</head>
+
+<body>
     <h2>Categories</h2>
 
-<?php if ($error !== ""): ?>
-    <p style="color:red;"><?= htmlspecialchars($error) ?></p>
-<?php endif; ?>
+    <?php if ($error !== ""): ?>
+        <p style="color:red;"><?= htmlspecialchars($error) ?></p>
+    <?php endif; ?>
 
-<?php if ($success !== ""): ?>
-    <p style="color:green;"><?= htmlspecialchars($success) ?></p>
-<?php endif; ?>
+    <?php if ($success !== ""): ?>
+        <p style="color:green;"><?= htmlspecialchars($success) ?></p>
+    <?php endif; ?>
 
-<form method="POST">
-    <input type="text" name="code" placeholder="Category Code" required><br>
-    <input type="text" name="name_en" placeholder="English Name" required><br>
-    <input type="text" name="name_ar" placeholder="Arabic Name"><br>
+    <form method="POST">
+        <input type="text" name="code" placeholder="Category Code" required><br>
+        <input type="text" name="name_en" placeholder="English Name" required><br>
+        <input type="text" name="name_ar" placeholder="Arabic Name"><br>
 
-    <select name="urgency_level">
-        <option value="low">Low</option>
-        <option value="medium" selected>Medium</option>
-        <option value="high">High</option>
-        <option value="critical">Critical</option>
-    </select><br>
+        <select name="urgency_level">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+        </select><br>
 
-    <button name="add">Add Category</button>
-</form>
+        <button name="add">Add Category</button>
+    </form>
 
-<hr>
+    <hr>
 
-<table border="1" cellpadding="10">
-    <tr>
-        <th>ID</th>
-        <th>Code</th>
-        <th>English Name</th>
-        <th>Arabic Name</th>
-        <th>Urgency Level</th>
-    </tr>
-
-    <?php foreach ($categories as $row): ?>
+    <table border="1" cellpadding="10">
         <tr>
-            <td><?= htmlspecialchars((string)$row['id']) ?></td>
-            <td><?= htmlspecialchars((string)$row['CODE']) ?></td>
-            <td><?= htmlspecialchars((string)$row['name_en']) ?></td>
-            <td><?= htmlspecialchars((string)$row['name_ar']) ?></td>
-            <td><?= htmlspecialchars((string)$row['urgency_level']) ?></td>
+            <th>ID</th>
+            <th>Code</th>
+            <th>English Name</th>
+            <th>Arabic Name</th>
+            <th>Urgency Level</th>
         </tr>
-    <?php endforeach; ?>
-</table>
 
-<a href="dashboard.php">Back</a>
+        <?php foreach ($categories as $row): ?>
+            <tr>
+                <td><?= htmlspecialchars((string)$row['id']) ?></td>
+                <td><?= htmlspecialchars((string)$row['CODE']) ?></td>
+                <td><?= htmlspecialchars((string)$row['name_en']) ?></td>
+                <td><?= htmlspecialchars((string)$row['name_ar']) ?></td>
+                <td><?= htmlspecialchars((string)$row['urgency_level']) ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </table>
 
-    </body>
+    <a href="dashboard.php">Back</a>
+
+</body>
+
 </html>

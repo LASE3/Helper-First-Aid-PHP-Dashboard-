@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -104,6 +105,7 @@ $settings = $stmt->fetch();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Settings Dashboard</title>
@@ -123,7 +125,9 @@ $settings = $stmt->fetch();
             margin-top: 12px;
         }
 
-        input, select, button {
+        input,
+        select,
+        button {
             width: 100%;
             padding: 8px;
             margin-top: 5px;
@@ -155,64 +159,62 @@ $settings = $stmt->fetch();
         }
     </style>
 </head>
+
 <body>
 
-<h2>Application Settings</h2>
+    <h2>Application Settings</h2>
 
-<?php if ($message !== ""): ?>
-    <div class="message"><?= htmlspecialchars($message) ?></div>
-<?php endif; ?>
+    <?php if ($message !== ""): ?>
+        <div class="message"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
 
-<?php if ($error !== ""): ?>
-    <div class="error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+    <?php if ($error !== ""): ?>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
 
-<div class="box">
-    <form method="POST">
-        <label>Default Language</label>
-        <select name="language" required>
-            <option value="en" <?= (($settings['language'] ?? '') === 'en') ? 'selected' : '' ?>>English</option>
-            <option value="ar" <?= (($settings['language'] ?? '') === 'ar') ? 'selected' : '' ?>>Arabic</option>
-        </select>
+    <div class="box">
+        <form method="POST">
+            <label>Default Language</label>
+            <select name="language" required>
+                <option value="en" <?= (($settings['language'] ?? '') === 'en') ? 'selected' : '' ?>>English</option>
+                <option value="ar" <?= (($settings['language'] ?? '') === 'ar') ? 'selected' : '' ?>>Arabic</option>
+            </select>
 
-        <label>Emergency Number</label>
-        <input 
-            type="text" 
-            name="emergency_number" 
-            value="<?= htmlspecialchars((string)($settings['emergency_number'] ?? '')) ?>" 
-            required
-        >
+            <label>Emergency Number</label>
+            <input
+                type="text"
+                name="emergency_number"
+                value="<?= htmlspecialchars((string)($settings['emergency_number'] ?? '')) ?>"
+                required>
 
-        <label>Ambulance Number</label>
-        <input 
-            type="text" 
-            name="ambulance_number" 
-            value="<?= htmlspecialchars((string)($settings['ambulance_number'] ?? '')) ?>" 
-            required
-        >
+            <label>Ambulance Number</label>
+            <input
+                type="text"
+                name="ambulance_number"
+                value="<?= htmlspecialchars((string)($settings['ambulance_number'] ?? '')) ?>"
+                required>
 
-        <label>Fire Number</label>
-        <input 
-            type="text" 
-            name="fire_number" 
-            value="<?= htmlspecialchars((string)($settings['fire_number'] ?? '')) ?>" 
-            required
-        >
+            <label>Fire Number</label>
+            <input
+                type="text"
+                name="fire_number"
+                value="<?= htmlspecialchars((string)($settings['fire_number'] ?? '')) ?>"
+                required>
 
-        <label>Country Code</label>
-        <input 
-            type="text" 
-            name="country_code" 
-            value="<?= htmlspecialchars((string)($settings['country_code'] ?? '')) ?>" 
-            required
-        >
+            <label>Country Code</label>
+            <input
+                type="text"
+                name="country_code"
+                value="<?= htmlspecialchars((string)($settings['country_code'] ?? '')) ?>"
+                required>
 
-        <button type="submit" name="save">Save Settings</button>
-    </form>
-</div>
+            <button type="submit" name="save">Save Settings</button>
+        </form>
+    </div>
 
-<br>
-<a href="dashboard.php">Back</a>
+    <br>
+    <a href="dashboard.php">Back</a>
 
 </body>
+
 </html>

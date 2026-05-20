@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 function bump_content_version(PDO $pdo, ?int $adminId = null, string $summary = 'Content updated'): void
@@ -33,7 +34,6 @@ function bump_content_version(PDO $pdo, ?int $adminId = null, string $summary = 
         ]);
 
         $pdo->commit();
-
     } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
@@ -42,5 +42,4 @@ function bump_content_version(PDO $pdo, ?int $adminId = null, string $summary = 
         throw $e;
     }
 }
-
 ?>

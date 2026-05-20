@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 require_once '../config/database.php';
 
@@ -37,5 +38,4 @@ try {
         "message" => "Server error"
     ]);
 }
-
 ?>

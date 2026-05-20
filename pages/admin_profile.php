@@ -1,4 +1,4 @@
-<?php 
+<?php
 # added new page to view admin profile and permissions 10/5/2026
 declare(strict_types=1);
 require_once __DIR__ . '/guards.php';
@@ -14,12 +14,13 @@ if (!isset($_SESSION['admin'])) {
     exit();
 }
 
-$adminId =(int)($_SESSION['admin_id'] ?? 0);
+$adminId = (int)($_SESSION['admin_id'] ?? 0);
 
-if($adminId <= 0){
+if ($adminId <= 0) {
     die("Admin session is invalid. Please login again.");
 }
-$stmt = $pdo->prepare("
+$stmt = $pdo->prepare(
+    "
     SELECT id, full_name, email, role, is_active, created_at, updated_at
     FROM admin_users
     WHERE id = :id
@@ -52,11 +53,13 @@ $permissions = $permStmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang='en'>
+
 <head>
     <meta charset="UTF-8">
     <title>Admin Profile</title>
     <link rel="stylesheet" href="../assets/css/admin_profile.css">
 </head>
+
 <body>
     <h2>My Admin Profile</h2>
     <div class="box">
@@ -68,8 +71,9 @@ $permissions = $permStmt->fetchAll();
     </div>
     <div class="box">
         <h3>My Permissions</h3>
-        
-            <div class="table-wrap"><table>
+
+        <div class="table-wrap">
+            <table>
                 <thead>
                     <tr>
                         <th>Permission Key</th>
@@ -77,19 +81,20 @@ $permissions = $permStmt->fetchAll();
                     </tr>
                 </thead>
                 <tbody>
-                <?php if (count($permissions) > 0): ?>
-                    <?php foreach($permissions as $permission): ?>
-                    <tr>
-                        <td><?= htmlspecialchars((string)$permission['perm_key']) ?></td>
-                        <td><?= htmlspecialchars((string)$permission['perm_name']) ?></td>
-                    </tr>
-                    <?php endforeach; ?>
+                    <?php if (count($permissions) > 0): ?>
+                        <?php foreach ($permissions as $permission): ?>
+                            <tr>
+                                <td><?= htmlspecialchars((string)$permission['perm_key']) ?></td>
+                                <td><?= htmlspecialchars((string)$permission['perm_name']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
                 </tbody>
             </table>
         <?php else: ?>
             <p>You do not have any permissions assigned.</p>
         <?php endif; ?>
-    </div>
-    <a href="dashboard.php">Back to Dashboard</a>
+        </div>
+        <a href="dashboard.php">Back to Dashboard</a>
 </body>
+
 </html>

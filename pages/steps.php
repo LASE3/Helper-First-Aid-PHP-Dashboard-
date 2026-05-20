@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -61,8 +62,7 @@ if (isset($_POST['add'])) {
 
     if ($categoryID === '' || $bodyEn === '' || $bodyAr === '' || $stepNumber === '') {
         $error = "Category, step number, English body, and Arabic body are required.";
-    }
-    elseif (!ctype_digit($categoryID) || !ctype_digit($stepNumber)) {
+    } elseif (!ctype_digit($categoryID) || !ctype_digit($stepNumber)) {
         $error = "Category and step number must be valid numbers.";
     } else {
         $image_name = "";
@@ -126,7 +126,7 @@ if (isset($_POST['add'])) {
             $catCodeStmt->execute([(int)$categoryID]);
 
             $categoryCode = $catCodeStmt->fetchColumn();
-            
+
             $stmt->execute([
                 ':category_id' => (int)$categoryID,
                 ':category_code' => $categoryCode,
@@ -141,13 +141,13 @@ if (isset($_POST['add'])) {
                 ':is_active' => isset($_POST['is_active']) ? 1 : 0
             ]);
 
-            $newStepId = (int)$pdo->lastInsertId();    
-                log_admin_action(
-                    $pdo,
-                    'create_step',
-                    'step',
-                    $newStepId,
-                    'Admin added a new step'
+            $newStepId = (int)$pdo->lastInsertId();
+            log_admin_action(
+                $pdo,
+                'create_step',
+                'step',
+                $newStepId,
+                'Admin added a new step'
             );
 
             bump_content_version(
@@ -206,133 +206,139 @@ $steps = $stmt->fetchAll();
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Steps Dashboard</title>
     <link rel="stylesheet" href="../assets/css/steps.css">
 </head>
+
 <body>
 
-<h2>Steps Dashboard</h2>
+    <h2>Steps Dashboard</h2>
 
-<?php if ($message !== ""): ?>
-    <div class="message"><?= htmlspecialchars($message) ?></div>
-<?php endif; ?>
+    <?php if ($message !== ""): ?>
+        <div class="message"><?= htmlspecialchars($message) ?></div>
+    <?php endif; ?>
 
-<?php if ($error !== ""): ?>
-    <div class="error"><?= htmlspecialchars($error) ?></div>
-<?php endif; ?>
+    <?php if ($error !== ""): ?>
+        <div class="error"><?= htmlspecialchars($error) ?></div>
+    <?php endif; ?>
 
-<div class="version-box">
-    <strong>Current Content Version:</strong>
-    <?= htmlspecialchars((string)($contentMeta['content_version'] ?? '1')) ?>
-    <br>
-    <strong>Last Updated:</strong>
-    <?= htmlspecialchars((string)($contentMeta['updated_at'] ?? '')) ?>
-</div>
+    <div class="version-box">
+        <strong>Current Content Version:</strong>
+        <?= htmlspecialchars((string)($contentMeta['content_version'] ?? '1')) ?>
+        <br>
+        <strong>Last Updated:</strong>
+        <?= htmlspecialchars((string)($contentMeta['updated_at'] ?? '')) ?>
+    </div>
 
-<h3>Manual Content Version Update</h3>
-<form method="POST">
-    <button type="submit" name="update_version" class="small-btn">Update Content Version</button>
-</form>
+    <h3>Manual Content Version Update</h3>
+    <form method="POST">
+        <button type="submit" name="update_version" class="small-btn">Update Content Version</button>
+    </form>
 
-<hr>
+    <hr>
 
-<h3>Add Step</h3>
-<form method="POST" enctype="multipart/form-data">
-    <div class="row">
-        <div>
-            <label>Category</label>
-            <select name="category_id" required>
-                <option value="">Select Category</option>
-                <?php foreach ($categories as $c): ?>
-                    <option value="<?= htmlspecialchars((string)$c['id']) ?>">
-                        <?= htmlspecialchars((string)$c['name_en']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+    <h3>Add Step</h3>
+    <form method="POST" enctype="multipart/form-data">
+        <div class="row">
+            <div>
+                <label>Category</label>
+                <select name="category_id" required>
+                    <option value="">Select Category</option>
+                    <?php foreach ($categories as $c): ?>
+                        <option value="<?= htmlspecialchars((string)$c['id']) ?>">
+                            <?= htmlspecialchars((string)$c['name_en']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label>Step Number</label>
+                <input type="number" name="step_number" placeholder="Step Number" required>
+            </div>
         </div>
         <div>
-            <label>Step Number</label>
-            <input type="number" name="step_number" placeholder="Step Number" required>
+            <label>Title (EN)</label>
+            <input type="text" name="title_en" placeholder="Title (EN)" required>
         </div>
-         </div> <div>
-             <label>Title (EN)</label>
-             <input type="text" name="title_en" placeholder="Title (EN)" required>
-         </div>
-         <div>
-             <label>Title (AR)</label>
-             <input type="text" name="title_ar" placeholder="Title (AR)" required>
-         </div>  
-         <div>
-             <label>Body (EN)</label>
-             <textarea name="body_en" placeholder="Body (EN)"></textarea>
-         </div>
-         <div>
-             <label>Body (AR)</label>
-             <textarea name="body_ar" placeholder="Body (AR)"></textarea>
-         </div> 
-         <div>
-             <label>Warning (EN)</label>
-             <textarea name="warning_en" placeholder="Warning (EN)"></textarea>
-         </div>
-         <div>
-             <label>Warning (AR)</label>
-             <textarea name="warning_ar" placeholder="Warning (AR)"></textarea>
-         </div>
-         <div class="row">
-             <div>
-                 <label>Image</label>
-                 <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
-             </div>
-         </div>
-         <!-- <div></div>  -->
+        <div>
+            <label>Title (AR)</label>
+            <input type="text" name="title_ar" placeholder="Title (AR)" required>
+        </div>
+        <div>
+            <label>Body (EN)</label>
+            <textarea name="body_en" placeholder="Body (EN)"></textarea>
+        </div>
+        <div>
+            <label>Body (AR)</label>
+            <textarea name="body_ar" placeholder="Body (AR)"></textarea>
+        </div>
+        <div>
+            <label>Warning (EN)</label>
+            <textarea name="warning_en" placeholder="Warning (EN)"></textarea>
+        </div>
+        <div>
+            <label>Warning (AR)</label>
+            <textarea name="warning_ar" placeholder="Warning (AR)"></textarea>
+        </div>
+        <div class="row">
+            <div>
+                <label>Image</label>
+                <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+            </div>
+        </div>
+        <!-- <div></div>  -->
         <label>
             <input type="checkbox" name="is_active" checked>
             Active
         </label>
-    <button type="submit" name="add" class="small-btn">Add Step</button>
-</form>
+        <button type="submit" name="add" class="small-btn">Add Step</button>
+    </form>
 
-<hr>
+    <hr>
 
-<h3>Steps List</h3>
-<div class="table-wrap"><table>
-    <tr>
-        <th>ID</th>
-        <th>Category</th>
-        <th>Title (EN)</th>
-        <th>Title (AR)</th>
-        <th>Image</th>
-        <th>Step Number</th>
-    </tr>
-
-    <?php if (count($steps) > 0): ?>
-        <?php foreach ($steps as $row): ?>
+    <h3>Steps List</h3>
+    <div class="table-wrap">
+        <table>
             <tr>
-                <td><?= htmlspecialchars((string)$row['id']) ?></td>
-                <td><?= htmlspecialchars((string)($row['category_name'] ?? 'Unknown')) ?></td>
-                <td><?= htmlspecialchars((string)($row['title_en'] ?? '')) ?></td>
-                <td><?= htmlspecialchars((string)($row['title_ar'] ?? '')) ?></td>
-                <td>
-                    <?php if (!empty($row['image_path'])): ?>
-                        <img src="../uploads/steps/<?= htmlspecialchars((string)$row['image_path']) ?>" width="70" alt="step image">
-                    <?php else: ?>
-                        No Image
-                    <?php endif; ?>
-                </td>
-                <td><?= htmlspecialchars((string)($row['step_no'] ?? '')) ?></td>
+                <th>ID</th>
+                <th>Category</th>
+                <th>Title (EN)</th>
+                <th>Title (AR)</th>
+                <th>Image</th>
+                <th>Step Number</th>
             </tr>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <tr>
-            <td colspan="7">No steps found.</td>
-        </tr>
-    <?php endif; ?>
-</table></div>
 
-<br>
-<a href="dashboard.php">Back</a>
+            <?php if (count($steps) > 0): ?>
+                <?php foreach ($steps as $row): ?>
+                    <tr>
+                        <td><?= htmlspecialchars((string)$row['id']) ?></td>
+                        <td><?= htmlspecialchars((string)($row['category_name'] ?? 'Unknown')) ?></td>
+                        <td><?= htmlspecialchars((string)($row['title_en'] ?? '')) ?></td>
+                        <td><?= htmlspecialchars((string)($row['title_ar'] ?? '')) ?></td>
+                        <td>
+                            <?php if (!empty($row['image_path'])): ?>
+                                <img src="../uploads/steps/<?= htmlspecialchars((string)$row['image_path']) ?>" width="70" alt="step image">
+                            <?php else: ?>
+                                No Image
+                            <?php endif; ?>
+                        </td>
+                        <td><?= htmlspecialchars((string)($row['step_no'] ?? '')) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="7">No steps found.</td>
+                </tr>
+            <?php endif; ?>
+        </table>
+    </div>
+
+    <br>
+    <a href="dashboard.php">Back</a>
 
 </body>
+
 </html>
