@@ -32,11 +32,11 @@ $users = $stmt->fetchAll();
 <html><head>    
     <meta charset="UTF-8">
     <title>App Users</title>
-    <link rel="stylesheet" href="assets/css/users.css">
+    <link rel="stylesheet" href="../assets/css/users.css">
     </head>
     <body>
         <h1>App Users</h1>
-        <table>
+        <div class="users-card"><div class="table-wrap"><table>
             <thead>
                 <tr>
                     <th>ID</th>
@@ -60,16 +60,16 @@ $users = $stmt->fetchAll();
                     <td><?= htmlspecialchars($user['device_id']) ?></td>
                     <td><?= htmlspecialchars($user['incident_count']) ?></td>
                     <td><?= htmlspecialchars($user['updated_at']) ?></td>
-                    <td><a href="user_details.php?id=<?= $user['id'] ?>" class="button">View Details</a></td>
+                    <td><a href="user_view.php?id=<?= $user['id'] ?>" class="button">View Details</a></td>
                 </tr>
                 <?php endforeach; ?>
             <?php else: ?>
                 <tr>
-                    <td colspan="8" style="text-align:center;">No users found.</td>
+                    <td colspan="8" class="empty">No users found.</td>
                 </tr>
             <?php endif; ?>
             </tbody>
-        </table>
+        </table></div></div>
         <br>
         <a href="dashboard.php">Back to Dashboard</a>
     </body>

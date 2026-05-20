@@ -126,13 +126,13 @@ function user_perm_ids(PDO $pdo, int $adminId): array
 <head>
   <meta charset="UTF-8">
   <title>Admins</title>
-  <link rel="stylesheet" href="assets/css/admins.css">
+  <link rel="stylesheet" href="../assets/css/admins.css">
 </head>
 
 <body>
 
   <div class="box">
-    <div class="row" style="justify-content:space-between">
+    <div class="row space-between">
       <h2>Admins & Permissions</h2>
       <a href="../logout.php">Logout</a>
     </div>
@@ -154,7 +154,7 @@ function user_perm_ids(PDO $pdo, int $adminId): array
         <p class="small">Select permissions for this admin:</p>
         <div class="perms">
           <?php foreach ($allPerms as $p): ?>
-            <label style="display:block;margin:4px 0">
+            <label>
               <input type="checkbox" name="permissions[]" value="<?= (int)$p['id'] ?>">
               <?= htmlspecialchars($p['perm_key']) ?> — <?= htmlspecialchars($p['perm_name']) ?>
             </label>
@@ -170,18 +170,18 @@ function user_perm_ids(PDO $pdo, int $adminId): array
     <h3>Existing Admins</h3>
 
     <?php foreach ($admins as $a): ?>
-      <div class="box" style="background:#fafafa">
+      <div class="box admin-card">
         <b><?= htmlspecialchars($a['full_name'] ?? '') ?></b>
         <div class="small"><?= htmlspecialchars($a['email']) ?> | role: <?= htmlspecialchars($a['role'] ?? '') ?> | active: <?= (int)$a['is_active'] ?></div>
 
         <?php if (can('system.manage_permissions') && ($a['role'] ?? '') !== 'super_admin'): ?>
           <?php $current = user_perm_ids($pdo, (int)$a['id']); ?>
-          <form method="POST" style="margin-top:10px">
+          <form method="POST">
             <input type="hidden" name="admin_id" value="<?= (int)$a['id'] ?>">
             <div class="perms">
               <?php foreach ($allPerms as $p): ?>
                 <?php $checked = in_array((int)$p['id'], array_map('intval', $current), true); ?>
-                <label style="display:block;margin:4px 0">
+                <label>
                   <input type="checkbox" name="permissions[]" value="<?= (int)$p['id'] ?>" <?= $checked ? 'checked' : '' ?>>
                   <?= htmlspecialchars($p['perm_key']) ?>
                 </label>

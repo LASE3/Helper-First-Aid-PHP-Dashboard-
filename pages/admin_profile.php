@@ -55,7 +55,7 @@ $permissions = $permStmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Admin Profile</title>
-    <link rel="stylesheet" href="assets/css/admin_profile.css">
+    <link rel="stylesheet" href="../assets/css/admin_profile.css">
 </head>
 <body>
     <h2>My Admin Profile</h2>
@@ -69,7 +69,7 @@ $permissions = $permStmt->fetchAll();
     <div class="box">
         <h3>My Permissions</h3>
         
-            <table>
+            <div class="table-wrap"><table>
                 <thead>
                     <tr>
                         <th>Permission Key</th>

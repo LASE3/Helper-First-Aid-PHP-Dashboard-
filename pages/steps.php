@@ -209,7 +209,7 @@ $steps = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Steps Dashboard</title>
-    <link rel="stylesheet" href="assets/css/steps.css">
+    <link rel="stylesheet" href="../assets/css/steps.css">
 </head>
 <body>
 
@@ -297,7 +297,7 @@ $steps = $stmt->fetchAll();
 <hr>
 
 <h3>Steps List</h3>
-<table>
+<div class="table-wrap"><table>
     <tr>
         <th>ID</th>
         <th>Category</th>
@@ -329,7 +329,7 @@ $steps = $stmt->fetchAll();
             <td colspan="7">No steps found.</td>
         </tr>
     <?php endif; ?>
-</table>
+</table></div>
 
 <br>
 <a href="dashboard.php">Back</a>

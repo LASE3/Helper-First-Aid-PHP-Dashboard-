@@ -89,7 +89,7 @@ if (!empty($incident['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Incident Details</title>
-    <link rel="stylesheet" href="assets/css/incident_view.css">
+    <link rel="stylesheet" href="../assets/css/incident_view.css">
 </head>
 <body>
 

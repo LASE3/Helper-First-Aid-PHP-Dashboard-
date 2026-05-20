@@ -28,7 +28,7 @@ require_perm('dashboard.view');
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
 
 <div style="padding:10px; background:#f4f4f4; margin-bottom:15px;">
     Signed in as:
