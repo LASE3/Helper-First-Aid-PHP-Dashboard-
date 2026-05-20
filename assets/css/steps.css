@@ -25,7 +25,6 @@ h3 {
 }
 
 .page-card,
-form,
 .version-box {
     background: #fff;
     border: 1px solid #e5e7eb;
@@ -74,7 +73,7 @@ input[type="checkbox"] {
 }
 
 .small-btn,
-button {
+button:not(.btn-danger) {
     background: #2563eb;
     color: #fff;
     border: 0;
@@ -86,7 +85,7 @@ button {
 }
 
 .small-btn:hover,
-button:hover {
+button:not(.btn-danger):hover {
     background: #1d4ed8
 }
 
@@ -193,5 +192,108 @@ a {
 }
 
 .btn-danger:hover {
+    background: #fecaca;
+}
+
+/* Floating edit modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 55px 24px;
+    overflow-y: auto;
+}
+
+.modal-card {
+    width: min(980px, 100%);
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);
+    padding: 24px;
+}
+
+.modal-card-wide {
+    width: min(1200px, 100%);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+    padding-bottom: 14px;
+}
+
+.modal-header h3 {
+    margin: 0 0 6px;
+    font-size: 22px;
+}
+
+.modal-header p {
+    margin: 0;
+    color: #64748b;
+}
+
+.modal-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.modal-close:hover {
+    background: #dbeafe;
+}
+
+.modal-form {
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+.inline-form .btn-danger,
+button.btn-danger {
+    background: #fee2e2;
+    color: #991b1b;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 13px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.inline-form .btn-danger:hover,
+button.btn-danger:hover {
     background: #fecaca;
 }

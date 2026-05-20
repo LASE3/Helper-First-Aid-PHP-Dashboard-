@@ -100,6 +100,13 @@ try {
     $error = "Database error. This category may be used by steps or incidents, so delete/edit was blocked.";
 }
 
+$editCategory = null;
+if (isset($_GET['edit_category']) && can('categories.edit')) {
+    $editStmt = $pdo->prepare("SELECT id, CODE, name_en, name_ar, urgency_level FROM categories WHERE id = ?");
+    $editStmt->execute([(int)$_GET['edit_category']]);
+    $editCategory = $editStmt->fetch();
+}
+
 $stmt = $pdo->prepare("
     SELECT id, CODE, name_en, name_ar, urgency_level
     FROM categories
@@ -115,7 +122,7 @@ $categories = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Categories</title>
-    <link rel="stylesheet" href="../assets/css/categories.css?v=20260520">
+    <link rel="stylesheet" href="../assets/css/categories.css?v=20260520b">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
 
@@ -132,6 +139,57 @@ $categories = $stmt->fetchAll();
 
     <?php if ($success !== ""): ?>
         <div class="alert success"><?= htmlspecialchars($success) ?></div>
+    <?php endif; ?>
+
+    <?php if ($editCategory): ?>
+        <div class="modal-backdrop">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <div>
+                        <h3>Edit Category</h3>
+                        <p>Update the category data used by the Flutter app.</p>
+                    </div>
+                    <a href="categories.php" class="modal-close">×</a>
+                </div>
+
+                <form method="POST" class="js-confirm-save">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editCategory['id']) ?>">
+
+                    <div class="form-grid modal-grid">
+                        <div>
+                            <label>Category Code</label>
+                            <input type="text" name="code" value="<?= htmlspecialchars((string)$editCategory['CODE']) ?>" required>
+                        </div>
+
+                        <div>
+                            <label>English Name</label>
+                            <input type="text" name="name_en" value="<?= htmlspecialchars((string)$editCategory['name_en']) ?>" required>
+                        </div>
+
+                        <div>
+                            <label>Arabic Name</label>
+                            <input type="text" name="name_ar" value="<?= htmlspecialchars((string)$editCategory['name_ar']) ?>">
+                        </div>
+
+                        <div>
+                            <label>Urgency Level</label>
+                            <select name="urgency_level">
+                                <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
+                                    <option value="<?= $level ?>" <?= (string)$editCategory['urgency_level'] === $level ? 'selected' : '' ?>>
+                                        <?= ucfirst($level) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="submit" name="update_category" class="btn-primary">Save Edit</button>
+                        <a href="categories.php" class="btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
     <?php endif; ?>
 
     <div class="card">
@@ -158,83 +216,49 @@ $categories = $stmt->fetchAll();
     <div class="card">
         <h3>Categories List</h3>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Code</th>
-                    <th>English Name</th>
-                    <th>Arabic Name</th>
-                    <th>Urgency Level</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-
-            <tbody>
-                <?php foreach ($categories as $row): ?>
-                    <?php $rowId = (int)$row['id']; ?>
+        <div class="table-wrap">
+            <table>
+                <thead>
                     <tr>
-                        <td><?= htmlspecialchars((string)$rowId) ?></td>
+                        <th>ID</th>
+                        <th>Code</th>
+                        <th>English Name</th>
+                        <th>Arabic Name</th>
+                        <th>Urgency Level</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
-                        <td>
-                            <?php if (can('categories.edit')): ?>
-                                <input form="edit-category-<?= $rowId ?>" type="text" name="code" value="<?= htmlspecialchars((string)$row['CODE']) ?>" required>
-                            <?php else: ?>
-                                <?= htmlspecialchars((string)$row['CODE']) ?>
-                            <?php endif; ?>
-                        </td>
-
-                        <td>
-                            <?php if (can('categories.edit')): ?>
-                                <input form="edit-category-<?= $rowId ?>" type="text" name="name_en" value="<?= htmlspecialchars((string)$row['name_en']) ?>" required>
-                            <?php else: ?>
-                                <?= htmlspecialchars((string)$row['name_en']) ?>
-                            <?php endif; ?>
-                        </td>
-
-                        <td>
-                            <?php if (can('categories.edit')): ?>
-                                <input form="edit-category-<?= $rowId ?>" type="text" name="name_ar" value="<?= htmlspecialchars((string)$row['name_ar']) ?>">
-                            <?php else: ?>
-                                <?= htmlspecialchars((string)$row['name_ar']) ?>
-                            <?php endif; ?>
-                        </td>
-
-                        <td>
-                            <?php if (can('categories.edit')): ?>
-                                <select form="edit-category-<?= $rowId ?>" name="urgency_level">
-                                    <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
-                                        <option value="<?= $level ?>" <?= (string)$row['urgency_level'] === $level ? 'selected' : '' ?>>
-                                            <?= ucfirst($level) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            <?php else: ?>
+                <tbody>
+                    <?php foreach ($categories as $row): ?>
+                        <?php $rowId = (int)$row['id']; ?>
+                        <tr>
+                            <td><?= htmlspecialchars((string)$rowId) ?></td>
+                            <td><?= htmlspecialchars((string)$row['CODE']) ?></td>
+                            <td><?= htmlspecialchars((string)$row['name_en']) ?></td>
+                            <td><?= htmlspecialchars((string)$row['name_ar']) ?></td>
+                            <td>
                                 <span class="urgency <?= htmlspecialchars((string)$row['urgency_level']) ?>">
                                     <?= htmlspecialchars((string)$row['urgency_level']) ?>
                                 </span>
-                            <?php endif; ?>
-                        </td>
+                            </td>
+                            <td class="action-buttons">
+                                <?php if (can('categories.edit')): ?>
+                                    <a href="categories.php?edit_category=<?= urlencode((string)$rowId) ?>" class="btn-secondary">Edit</a>
+                                <?php endif; ?>
 
-                        <td class="action-buttons">
-                            <?php if (can('categories.edit')): ?>
-                                <form id="edit-category-<?= $rowId ?>" method="POST" class="inline-form js-confirm-save">
-                                    <input type="hidden" name="id" value="<?= $rowId ?>">
-                                    <button type="submit" name="update_category" class="btn-secondary">Save</button>
-                                </form>
-                            <?php endif; ?>
-
-                            <?php if (can('categories.delete')): ?>
-                                <form method="POST" class="inline-form js-confirm-delete">
-                                    <input type="hidden" name="id" value="<?= $rowId ?>">
-                                    <button type="submit" name="delete_category" class="btn-danger">Delete</button>
-                                </form>
-                            <?php endif; ?>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                                <?php if (can('categories.delete')): ?>
+                                    <form method="POST" class="inline-form js-confirm-delete">
+                                        <input type="hidden" name="id" value="<?= $rowId ?>">
+                                        <button type="submit" name="delete_category" class="btn-danger">Delete</button>
+                                    </form>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 
 </body>
