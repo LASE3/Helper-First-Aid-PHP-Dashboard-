@@ -322,3 +322,103 @@ body {
     background: #fee2e2;
     color: #991b1b;
 }
+
+.global-modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: rgba(15, 23, 42, 0.60);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    overflow-y: auto;
+}
+
+.global-modal-overlay.active {
+    display: flex;
+}
+
+.global-modal-box {
+    width: min(980px, 100%);
+    background: #ffffff;
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.30);
+    padding: 24px;
+    position: relative;
+}
+
+.global-modal-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    border: none;
+    background:#dbeafe;
+    color: #2563eb;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-size: 24px;
+    font-weight: 800;
+    cursor: pointer;
+}
+.global-modal-box .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-bottom: 16px;
+}
+
+.global-modal-box input,
+.global-modal-box select,
+.global-modal-box textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.global-modal-box label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.global-modal-box .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+/* Modal buttons */
+
+.global-modal-box .btn-primary {
+    background: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.global-modal-box .btn-primary:hover {
+    background: #1d4ed8;
+}
+
+.global-modal-box .btn-secondary {
+    background: #eff6ff;
+    color: #2563eb;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.global-modal-box .btn-secondary:hover {
+    background: #dbeafe;
+}

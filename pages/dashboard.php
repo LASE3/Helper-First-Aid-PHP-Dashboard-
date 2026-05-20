@@ -128,9 +128,20 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
             </div>
         </div>
     </div>
-
     <script src="../assets/js/dashboard.js?v=20260520"></script>
     <script src="../assets/js/session-timeout.js?v=20260520"></script>
+    <div id="globalModalOverlay" class="global-modal-overlay">
+        <div class="global-modal-box">
+
+            <button class="global-modal-close"
+                onclick="closeGlobalModal()">
+                ×
+            </button>
+
+            <div id="globalModalContent"></div>
+
+        </div>
+    </div>
 </body>
 
 </html>

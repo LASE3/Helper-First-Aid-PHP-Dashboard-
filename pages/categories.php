@@ -102,15 +102,15 @@ try {
 
 $editCategory = null;
 if (isset($_GET['edit_category']) && can('categories.edit')) {
-    $editStmt = $pdo->prepare("SELECT id, CODE, name_en, name_ar, urgency_level FROM categories WHERE id = ?");
+    $editStmt = $pdo->prepare("SELECT * FROM categories WHERE id = ?");
     $editStmt->execute([(int)$_GET['edit_category']]);
     $editCategory = $editStmt->fetch();
 }
 
 $stmt = $pdo->prepare("
-    SELECT id, CODE, name_en, name_ar, urgency_level
+    SELECT *
     FROM categories
-    ORDER BY id DESC
+    ORDER BY id ASC
 ");
 $stmt->execute();
 $categories = $stmt->fetchAll();
@@ -139,57 +139,6 @@ $categories = $stmt->fetchAll();
 
     <?php if ($success !== ""): ?>
         <div class="alert success"><?= htmlspecialchars($success) ?></div>
-    <?php endif; ?>
-
-    <?php if ($editCategory): ?>
-        <div class="modal-backdrop">
-            <div class="modal-card">
-                <div class="modal-header">
-                    <div>
-                        <h3>Edit Category</h3>
-                        <p>Update the category data used by the Flutter app.</p>
-                    </div>
-                    <a href="categories.php" class="modal-close">×</a>
-                </div>
-
-                <form method="POST" class="js-confirm-save">
-                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editCategory['id']) ?>">
-
-                    <div class="form-grid modal-grid">
-                        <div>
-                            <label>Category Code</label>
-                            <input type="text" name="code" value="<?= htmlspecialchars((string)$editCategory['CODE']) ?>" required>
-                        </div>
-
-                        <div>
-                            <label>English Name</label>
-                            <input type="text" name="name_en" value="<?= htmlspecialchars((string)$editCategory['name_en']) ?>" required>
-                        </div>
-
-                        <div>
-                            <label>Arabic Name</label>
-                            <input type="text" name="name_ar" value="<?= htmlspecialchars((string)$editCategory['name_ar']) ?>">
-                        </div>
-
-                        <div>
-                            <label>Urgency Level</label>
-                            <select name="urgency_level">
-                                <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
-                                    <option value="<?= $level ?>" <?= (string)$editCategory['urgency_level'] === $level ? 'selected' : '' ?>>
-                                        <?= ucfirst($level) ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="modal-actions">
-                        <button type="submit" name="update_category" class="btn-primary">Save Edit</button>
-                        <a href="categories.php" class="btn-secondary">Cancel</a>
-                    </div>
-                </form>
-            </div>
-        </div>
     <?php endif; ?>
 
     <div class="card">
@@ -244,7 +193,12 @@ $categories = $stmt->fetchAll();
                             </td>
                             <td class="action-buttons">
                                 <?php if (can('categories.edit')): ?>
-                                    <a href="categories.php?edit_category=<?= urlencode((string)$rowId) ?>" class="btn-secondary">Edit</a>
+                                    <button
+                                        type="button"
+                                        class="btn-secondary"
+                                        onclick="parent.openGlobalModal(document.getElementById('editCategory<?= $rowId ?>').innerHTML)">
+                                        Edit
+                                    </button>
                                 <?php endif; ?>
 
                                 <?php if (can('categories.delete')): ?>
@@ -252,6 +206,56 @@ $categories = $stmt->fetchAll();
                                         <input type="hidden" name="id" value="<?= $rowId ?>">
                                         <button type="submit" name="delete_category" class="btn-danger">Delete</button>
                                     </form>
+                                <?php endif; ?>
+                                <?php if (can('categories.edit')): ?>
+                                    <div id="editCategory<?= $rowId ?>" style="display:none;">
+                                        <div class="modal-header">
+                                            <div>
+                                                <h3>Edit Category</h3>
+                                                <p>Update the category data used by the Flutter app.</p>
+                                            </div>
+                                        </div>
+
+                                        <form method="POST" action="pages/categories.php" class="js-confirm-save">
+                                            <input type="hidden" name="id" value="<?= htmlspecialchars((string)$row['id']) ?>">
+
+                                            <div class="form-grid modal-grid">
+                                                <div>
+                                                    <label>Category Code</label>
+                                                    <input type="text" name="code" value="<?= htmlspecialchars((string)$row['CODE']) ?>" required>
+                                                </div>
+
+                                                <div>
+                                                    <label>English Name</label>
+                                                    <input type="text" name="name_en" value="<?= htmlspecialchars((string)$row['name_en']) ?>" required>
+                                                </div>
+
+                                                <div>
+                                                    <label>Arabic Name</label>
+                                                    <input type="text" name="name_ar" value="<?= htmlspecialchars((string)$row['name_ar']) ?>">
+                                                </div>
+
+                                                <div>
+                                                    <label>Urgency Level</label>
+                                                    <select name="urgency_level">
+                                                        <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
+                                                            <option value="<?= $level ?>" <?= (string)$row['urgency_level'] === $level ? 'selected' : '' ?>>
+                                                                <?= ucfirst($level) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-actions">
+                                                <button type="submit" name="update_category" class="btn-primary">Save Edit</button>
+
+                                                <button type="button" class="btn-secondary" onclick="parent.closeGlobalModal()">
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 <?php endif; ?>
                             </td>
                         </tr>

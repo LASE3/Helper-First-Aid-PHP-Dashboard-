@@ -248,77 +248,79 @@ $totalIncidents = count($incidents);
     <?php endif; ?>
 
     <?php if ($editIncident): ?>
-        <div class="card">
-            <h3>Edit Incident #<?= htmlspecialchars((string)$editIncident['id']) ?></h3>
+        <div class="modal-backdrop">
+            <div class="modal-card modal-card-wide">
+                <h3>Edit Incident #<?= htmlspecialchars((string)$editIncident['id']) ?></h3>
 
-            <form method="POST" class="js-confirm-save">
-                <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editIncident['id']) ?>">
+                <form method="POST" class="js-confirm-save">
+                    <input type="hidden" name="id" value="<?= htmlspecialchars((string)$editIncident['id']) ?>">
 
-                <div class="form-grid">
-                    <div>
-                        <label>Category</label>
-                        <select name="category_code" required>
-                            <?php foreach ($categories as $c): ?>
-                                <option value="<?= htmlspecialchars((string)$c['CODE']) ?>"
-                                    <?= (string)$editIncident['category_code'] === (string)$c['CODE'] ? 'selected' : '' ?>>
-                                    <?= htmlspecialchars((string)$c['name_en']) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                    <div class="form-grid">
+                        <div>
+                            <label>Category</label>
+                            <select name="category_code" required>
+                                <?php foreach ($categories as $c): ?>
+                                    <option value="<?= htmlspecialchars((string)$c['CODE']) ?>"
+                                        <?= (string)$editIncident['category_code'] === (string)$c['CODE'] ? 'selected' : '' ?>>
+                                        <?= htmlspecialchars((string)$c['name_en']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Urgency</label>
+                            <select name="urgency_level">
+                                <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
+                                    <option value="<?= $level ?>" <?= (string)$editIncident['urgency_level'] === $level ? 'selected' : '' ?>>
+                                        <?= ucfirst($level) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label>Confidence</label>
+                            <input type="number" step="0.01" name="confidence" value="<?= htmlspecialchars((string)($editIncident['confidence'] ?? '')) ?>">
+                        </div>
+
+                        <div>
+                            <label>Language</label>
+                            <input type="text" name="lang" value="<?= htmlspecialchars((string)($editIncident['lang'] ?? '')) ?>">
+                        </div>
+
+                        <div>
+                            <label>Latitude</label>
+                            <input type="text" name="lat" value="<?= htmlspecialchars((string)($editIncident['lat'] ?? '')) ?>">
+                        </div>
+
+                        <div>
+                            <label>Longitude</label>
+                            <input type="text" name="lng" value="<?= htmlspecialchars((string)($editIncident['lng'] ?? '')) ?>">
+                        </div>
+
+                        <div>
+                            <label>Occurred At</label>
+                            <input type="text" name="occurred_at" value="<?= htmlspecialchars((string)($editIncident['occurred_at'] ?? '')) ?>">
+                        </div>
+
+                        <div>
+                            <label>
+                                <input type="checkbox" name="manual_override" <?= (int)($editIncident['manual_override'] ?? 0) === 1 ? 'checked' : '' ?>>
+                                Manual Override
+                            </label>
+                        </div>
                     </div>
 
-                    <div>
-                        <label>Urgency</label>
-                        <select name="urgency_level">
-                            <?php foreach (['low', 'medium', 'high', 'critical'] as $level): ?>
-                                <option value="<?= $level ?>" <?= (string)$editIncident['urgency_level'] === $level ? 'selected' : '' ?>>
-                                    <?= ucfirst($level) ?>
-                                </option>
-                            <?php endforeach; ?>
-                        </select>
+                    <label>Input Text</label>
+                    <textarea name="input_text"><?= htmlspecialchars((string)($editIncident['input_text'] ?? '')) ?></textarea>
+
+                    <div class="filter-actions">
+                        <button type="submit" name="update_incident" class="btn-primary">Save Edit</button>
+                        <a href="incidents.php" class="btn-secondary">Cancel</a>
                     </div>
-
-                    <div>
-                        <label>Confidence</label>
-                        <input type="number" step="0.01" name="confidence" value="<?= htmlspecialchars((string)($editIncident['confidence'] ?? '')) ?>">
-                    </div>
-
-                    <div>
-                        <label>Language</label>
-                        <input type="text" name="lang" value="<?= htmlspecialchars((string)($editIncident['lang'] ?? '')) ?>">
-                    </div>
-
-                    <div>
-                        <label>Latitude</label>
-                        <input type="text" name="lat" value="<?= htmlspecialchars((string)($editIncident['lat'] ?? '')) ?>">
-                    </div>
-
-                    <div>
-                        <label>Longitude</label>
-                        <input type="text" name="lng" value="<?= htmlspecialchars((string)($editIncident['lng'] ?? '')) ?>">
-                    </div>
-
-                    <div>
-                        <label>Occurred At</label>
-                        <input type="text" name="occurred_at" value="<?= htmlspecialchars((string)($editIncident['occurred_at'] ?? '')) ?>">
-                    </div>
-
-                    <div>
-                        <label>
-                            <input type="checkbox" name="manual_override" <?= (int)($editIncident['manual_override'] ?? 0) === 1 ? 'checked' : '' ?>>
-                            Manual Override
-                        </label>
-                    </div>
-                </div>
-
-                <label>Input Text</label>
-                <textarea name="input_text"><?= htmlspecialchars((string)($editIncident['input_text'] ?? '')) ?></textarea>
-
-                <div class="filter-actions">
-                    <button type="submit" name="update_incident" class="btn-primary">Save Edit</button>
-                    <a href="incidents.php" class="btn-secondary">Cancel</a>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     <?php endif; ?>
 

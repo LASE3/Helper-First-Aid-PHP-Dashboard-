@@ -40,3 +40,38 @@ if (contentFrame) {
         }
     });
 }
+function openGlobalModal(html) {
+
+    document
+        .getElementById(
+            "globalModalContent"
+        )
+        .innerHTML = html;
+
+    document
+        .getElementById(
+            "globalModalOverlay"
+        )
+        .classList
+        .add("active");
+
+    document.body.style.overflow = "hidden";
+}
+
+function closeGlobalModal() {
+
+    document
+        .getElementById(
+            "globalModalOverlay"
+        )
+        .classList
+        .remove("active");
+
+    document
+        .getElementById(
+            "globalModalContent"
+        )
+        .innerHTML = "";
+
+    document.body.style.overflow = "";
+}

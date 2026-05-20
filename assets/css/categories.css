@@ -189,17 +189,23 @@ tr:hover {
 /* Floating edit modal */
 .modal-backdrop {
     position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: rgba(15, 23, 42, 0.45);
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 99999;
+    background: rgba(15, 23, 42, 0.55);
     display: flex;
     align-items: flex-start;
     justify-content: center;
     padding: 55px 24px;
     overflow-y: auto;
+    pointer-events: auto;
 }
 
 .modal-card {
+    position: relative;
+    z-index: 100000;
     width: min(980px, 100%);
     background: #ffffff;
     border-radius: 18px;
