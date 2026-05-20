@@ -22,20 +22,21 @@ if (!isset($_SESSION['admin'])) {
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
+
     <link rel="stylesheet" href="../assets/css/dashboard.css">
 </head>
 
 <body>
 
-    <div class="dashboard-shell">
+    <div class="layout">
 
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <h2>Dashboard</h2>
-                <button type="button" id="toggleSidebar">☰</button>
+        <aside class="sidebar">
+            <div class="brand">
+                <button class="menu-btn">☰</button>
+                <span>FirstAid Admin</span>
             </div>
 
-            <nav class="menu">
+            <nav class="nav-menu">
                 <?php if (can('categories.view')): ?>
                     <a href="categories.php" target="contentFrame">Categories</a>
                 <?php endif; ?>
@@ -58,30 +59,29 @@ if (!isset($_SESSION['admin'])) {
             </nav>
         </aside>
 
-        <main class="main-area">
+        <main class="main">
+
             <header class="topbar">
                 <div>
-                    <strong><?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?></strong>
-                    <span><?= htmlspecialchars($_SESSION['admin_role'] ?? '') ?></span>
+                    <p>Good Morning,</p>
+                    <h2><?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?></h2>
                 </div>
 
-                <div class="topbar-actions">
+                <div class="top-actions">
                     <a href="admin_profile.php" target="contentFrame">Profile</a>
                     <a href="settings.php" target="contentFrame">Settings</a>
-                    <a href="logout.php" target="_top" class="logout-btn">Logout</a>
+                    <a href="logout.php" target="_top" class="logout">Logout</a>
                 </div>
             </header>
 
-            <iframe
-                name="contentFrame"
-                src="incidents.php"
-                class="content-frame">
-            </iframe>
+            <section class="content">
+                <iframe name="contentFrame" src="incidents.php"></iframe>
+            </section>
+
         </main>
 
     </div>
 
-    <script src="../assets/js/dashboard.js"></script>
 </body>
 
 </html>

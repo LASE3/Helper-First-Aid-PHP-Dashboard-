@@ -9,70 +9,83 @@ body {
     color: #0f172a;
 }
 
-.dashboard-shell {
+.layout {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
+}
+
+/* Sidebar closed by default */
+.sidebar {
+    width: 72px;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 22px 14px;
+    transition: width 0.25s ease;
     overflow: hidden;
 }
 
-.sidebar {
-    width: 230px;
-    background: #ffffff;
-    border-right: 1px solid #e2e8f0;
-    transition: width 0.25s ease;
-    padding: 18px;
+/* Open on hover */
+.sidebar:hover {
+    width: 240px;
 }
 
-.sidebar.closed {
-    width: 72px;
-}
-
-.sidebar-header {
+.brand {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    gap: 12px;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 35px;
+    white-space: nowrap;
 }
 
-.sidebar-header h2 {
-    font-size: 20px;
-    margin: 0;
-}
-
-.sidebar.closed .sidebar-header h2,
-.sidebar.closed .menu a {
-    display: none;
-}
-
-#toggleSidebar {
+.menu-btn {
+    width: 38px;
+    height: 38px;
     border: none;
-    background: #2563eb;
-    color: white;
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: 10px;
+    background: #eff6ff;
+    color: #2563eb;
     cursor: pointer;
+    font-size: 18px;
 }
 
-.menu {
-    margin-top: 28px;
+.brand span {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.sidebar:hover .brand span {
+    opacity: 1;
+}
+
+.nav-menu {
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-.menu a {
-    color: #0f172a;
+.nav-menu a {
     text-decoration: none;
-    padding: 11px 12px;
-    border-radius: 10px;
+    color: #64748b;
+    padding: 12px 14px;
+    border-radius: 12px;
     font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: 0.2s;
 }
 
-.menu a:hover {
+.sidebar:hover .nav-menu a {
+    opacity: 1;
+}
+
+.nav-menu a:hover {
     background: #eff6ff;
     color: #2563eb;
 }
 
-.main-area {
+.main {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -80,47 +93,61 @@ body {
 }
 
 .topbar {
-    height: 58px;
+    height: 74px;
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
+    padding: 0 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 22px;
 }
 
-.topbar span {
-    margin-left: 8px;
-    color: #64748b;
+.topbar p {
+    margin: 0;
+    color: #94a3b8;
     font-size: 14px;
 }
 
-.topbar-actions {
+.topbar h2 {
+    margin: 4px 0 0;
+    font-size: 22px;
+}
+
+.top-actions {
     display: flex;
-    align-items: center;
     gap: 10px;
+    align-items: center;
 }
 
-.topbar-actions a {
+.top-actions a {
     text-decoration: none;
+    padding: 9px 14px;
+    border-radius: 10px;
     color: #2563eb;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
-}
-
-.topbar-actions a:hover {
     background: #eff6ff;
+    font-weight: bold;
 }
 
-.logout-btn {
-    background: #fee2e2 !important;
-    color: #991b1b !important;
+.top-actions a:hover {
+    background: #dbeafe;
 }
 
-.content-frame {
+.top-actions .logout {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.content {
     flex: 1;
+    padding: 24px;
+    background: #f8fafc;
+}
+
+.content iframe {
     width: 100%;
+    height: calc(100vh - 122px);
     border: none;
+    border-radius: 16px;
     background: white;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
 }
