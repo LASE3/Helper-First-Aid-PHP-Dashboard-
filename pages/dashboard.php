@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -15,73 +14,92 @@ if (!isset($_SESSION['admin'])) {
     header("Location: login.php");
     exit();
 }
+
+$adminName = $_SESSION['admin_name'] ?? 'Admin';
+$adminRole = $_SESSION['admin_role'] ?? 'admin';
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-    <title>Dashboard</title>
+    <title>FirstAid Admin Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <!-- version added to prevent browser cache from showing old CSS -->
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=20260520">
 </head>
 
 <body>
+<div class="admin-layout">
 
-    <div class="layout">
+    <aside class="sidebar">
+        <div class="brand-row">
+            <button type="button" class="menu-button" aria-label="Open menu">☰</button>
+            <span class="brand-name">FirstAid Admin</span>
+        </div>
 
-        <aside class="sidebar">
-            <div class="brand">
-                <button class="menu-btn">☰</button>
-                <span>FirstAid Admin</span>
+        <nav class="sidebar-menu">
+            <?php if (can('categories.view')): ?>
+                <a href="categories.php" target="contentFrame">
+                    <span class="menu-icon">▦</span>
+                    <span class="menu-text">Categories</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if (can('steps.view')): ?>
+                <a href="steps.php" target="contentFrame">
+                    <span class="menu-icon">☑</span>
+                    <span class="menu-text">Steps</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if (can('incidents.view')): ?>
+                <a href="incidents.php" target="contentFrame" class="active">
+                    <span class="menu-icon">⚕</span>
+                    <span class="menu-text">Incidents</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if (can('admins.view')): ?>
+                <a href="admins.php" target="contentFrame">
+                    <span class="menu-icon">👤</span>
+                    <span class="menu-text">Admins</span>
+                </a>
+            <?php endif; ?>
+
+            <?php if (can('users.view')): ?>
+                <a href="users.php" target="contentFrame">
+                    <span class="menu-icon">◎</span>
+                    <span class="menu-text">Users</span>
+                </a>
+            <?php endif; ?>
+        </nav>
+    </aside>
+
+    <main class="main-panel">
+        <header class="topbar">
+            <div class="welcome-box">
+                <p>Good Morning,</p>
+                <h1><?= htmlspecialchars((string)$adminName) ?></h1>
+                <span><?= htmlspecialchars((string)$adminRole) ?></span>
             </div>
 
-            <nav class="nav-menu">
-                <?php if (can('categories.view')): ?>
-                    <a href="categories.php" target="contentFrame">Categories</a>
-                <?php endif; ?>
+            <div class="topbar-actions">
+                <a href="admin_profile.php" target="contentFrame" class="top-link">Profile</a>
+                <a href="settings.php" target="contentFrame" class="top-link">Settings</a>
+                <a href="logout.php" target="_top" class="logout-link">Logout</a>
+            </div>
+        </header>
 
-                <?php if (can('steps.view')): ?>
-                    <a href="steps.php" target="contentFrame">Steps</a>
-                <?php endif; ?>
+        <section class="dashboard-content">
+            <iframe
+                name="contentFrame"
+                src="incidents.php"
+                title="Dashboard content">
+            </iframe>
+        </section>
+    </main>
 
-                <?php if (can('incidents.view')): ?>
-                    <a href="incidents.php" target="contentFrame">Incidents</a>
-                <?php endif; ?>
-
-                <?php if (can('admins.view')): ?>
-                    <a href="admins.php" target="contentFrame">Admins</a>
-                <?php endif; ?>
-
-                <?php if (can('users.view')): ?>
-                    <a href="users.php" target="contentFrame">Users</a>
-                <?php endif; ?>
-            </nav>
-        </aside>
-
-        <main class="main">
-
-            <header class="topbar">
-                <div>
-                    <p>Good Morning,</p>
-                    <h2><?= htmlspecialchars($_SESSION['admin_name'] ?? 'Admin') ?></h2>
-                </div>
-
-                <div class="top-actions">
-                    <a href="admin_profile.php" target="contentFrame">Profile</a>
-                    <a href="settings.php" target="contentFrame">Settings</a>
-                    <a href="logout.php" target="_top" class="logout">Logout</a>
-                </div>
-            </header>
-
-            <section class="content">
-                <iframe name="contentFrame" src="incidents.php"></iframe>
-            </section>
-
-        </main>
-
-    </div>
-
+</div>
 </body>
-
 </html>
