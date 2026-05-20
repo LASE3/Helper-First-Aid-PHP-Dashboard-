@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
@@ -151,12 +152,14 @@ $users = $stmt->fetchAll();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>App Users</title>
     <link rel="stylesheet" href="../assets/css/users.css?v=20260520c">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
+
 <body>
     <div class="page-header">
         <h1>App Users</h1>
@@ -257,11 +260,14 @@ $users = $stmt->fetchAll();
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
-                        <tr><td colspan="9" class="empty">No users found.</td></tr>
+                        <tr>
+                            <td colspan="9" class="empty">No users found.</td>
+                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </body>
+
 </html>
