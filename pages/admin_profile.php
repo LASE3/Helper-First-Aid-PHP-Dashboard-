@@ -55,35 +55,7 @@ $permissions = $permStmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Admin Profile</title>
-    <style>
-        body{ 
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .box{
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            background: #fafafa;
-        }
-        .label{
-            font-weight: bold;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/admin_profile.css">
 </head>
 <body>
     <h2>My Admin Profile</h2>
@@ -94,7 +66,7 @@ $permissions = $permStmt->fetchAll();
         <p><span class="label">Active:</span> <?= (int)$admin['is_active'] === 1 ? 'Active' : 'Inactive' ?></p>
         <p><span class="label">Created At:</span> <?= htmlspecialchars((string)$admin['created_at']) ?></p>
     </div>
-    <div class"box">
+    <div class="box">
         <h3>My Permissions</h3>
         
             <table>

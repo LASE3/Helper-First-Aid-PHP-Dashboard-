@@ -89,41 +89,7 @@ if (!empty($incident['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Incident Details</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        .card {
-            border: 1px solid #ccc;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 6px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
-
-        th {
-            width: 220px;
-            background: #f4f4f4;
-        }
-
-        img {
-            max-width: 180px;
-            margin: 8px;
-            border-radius: 5px;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/incident_view.css">
 </head>
 <body>
 

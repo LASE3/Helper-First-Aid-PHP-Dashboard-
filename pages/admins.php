@@ -126,72 +126,7 @@ function user_perm_ids(PDO $pdo, int $adminId): array
 <head>
   <meta charset="UTF-8">
   <title>Admins</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #f4f4f4;
-      padding: 20px
-    }
-
-    .box {
-      background: #fff;
-      border-radius: 10px;
-      padding: 16px;
-      margin-bottom: 16px
-    }
-
-    input {
-      padding: 8px;
-      width: 100%;
-      margin: 6px 0
-    }
-
-    button {
-      padding: 10px;
-      width: 100%;
-      border: none;
-      cursor: pointer
-    }
-
-    .err {
-      color: red
-    }
-
-    .ok {
-      color: green
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px
-    }
-
-    .perms {
-      max-height: 220px;
-      overflow: auto;
-      border: 1px solid #ddd;
-      padding: 10px;
-      border-radius: 8px
-    }
-
-    .row {
-      display: flex;
-      gap: 10px;
-      align-items: center
-    }
-
-    .small {
-      font-size: 12px;
-      color: #666
-    }
-
-    .btn {
-      background: #222;
-      color: #fff;
-      border-radius: 8px
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/admins.css">
 </head>
 
 <body>

@@ -32,33 +32,7 @@ $users = $stmt->fetchAll();
 <html><head>    
     <meta charset="UTF-8">
     <title>App Users</title>
-    <style>
-        body{ 
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        th, td {
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        a.button {
-            display: inline-block;
-            padding: 6px 12px;
-            background-color: #007BFF;
-            color: white;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/users.css">
     </head>
     <body>
         <h1>App Users</h1>

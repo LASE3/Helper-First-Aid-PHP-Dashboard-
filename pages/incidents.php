@@ -156,157 +156,7 @@ $totalIncidents = count($incidents);
     <meta charset="UTF-8">
     <title>Incidents</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-
-        h2, h3 {
-            margin-bottom: 10px;
-        }
-
-        form {
-            margin-bottom: 20px;
-        }
-
-        input, select, textarea, button {
-            margin: 5px 0;
-            padding: 8px;
-            width: 100%;
-            max-width: 400px;
-            box-sizing: border-box;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .filter-row,
-        .add-form-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            align-items: end;
-            margin-bottom: 10px;
-        }
-
-        .filter-row > div,
-        .add-form-row > div {
-            flex: 1;
-            min-width: 180px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        table, th, td {
-            border: 1px solid #ccc;
-        }
-
-        th, td {
-            padding: 10px;
-            text-align: left;
-            vertical-align: top;
-        }
-
-        th {
-            background: #f4f4f4;
-        }
-
-        img {
-            border-radius: 4px;
-        }
-
-        .message {
-            color: green;
-            margin-bottom: 10px;
-        }
-
-        .error {
-            color: red;
-            margin-bottom: 10px;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .small-btn {
-            width: auto;
-            padding: 8px 14px;
-            cursor: pointer;
-        }
-        .dashboard-header {
-            background: #2563eb;
-            color: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .dashboard-header h2 {
-            margin: 0;
-        }
-
-        .stats-row {
-           display: flex;
-           gap: 15px;
-           flex-wrap: wrap;
-           margin: 20px 0;
-        }
-
-        .stat-card {
-           background: white;
-           border: 1px solid #ddd;
-           border-radius: 12px;
-           padding: 18px;
-           min-width: 180px;
-           flex: 1;
-           box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-
-        .stat-card h4 {
-           margin: 0;
-           color: #555;
-        }
-
-        .stat-card p {
-           font-size: 28px;
-           font-weight: bold;
-           margin: 10px 0 0;
-           color: #2563eb;
-        }
-
-        .charts-row {
-           display: flex;
-           gap: 20px;
-           flex-wrap: wrap;
-           margin: 20px 0;
-        }
-
-        .chart-box {
-          background: white;
-          border: 1px solid #ddd;
-          border-radius: 12px;
-          padding: 20px;
-          flex: 1;
-          min-width: 350px;
-          box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-        }
-
-        .chart-box canvas {
-          max-height: 300px;
-        } 
-        
-        
-    </style>
+    <link rel="stylesheet" href="../assets/css/incidents.css">
 </head>
 <body>
 
@@ -493,44 +343,12 @@ $totalIncidents = count($incidents);
 <br>
 <a href="dashboard.php">Back</a>
 <script>
-const categoryLabels = <?= json_encode($categoryLabels) ?>;
-const categoryValues = <?= json_encode($categoryValues) ?>;
-
-new Chart(document.getElementById('categoryChart'), {
-    type: 'bar',
-    data: {
-        labels: categoryLabels,
-        datasets: [{
-            label: 'Incidents',
-            data: categoryValues
-        }]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: {
-                display: false
-            }
-        }
-    }
-});
-
-const urgencyLabels = <?= json_encode($urgencyLabels) ?>;
-const urgencyValues = <?= json_encode($urgencyValues) ?>;
-
-new Chart(document.getElementById('urgencyChart'), {
-    type: 'pie',
-    data: {
-        labels: urgencyLabels,
-        datasets: [{
-            data: urgencyValues
-        }]
-    },
-    options: {
-        responsive: true
-    }
-});
+    window.categoryLabels = <?= json_encode($categoryLabels) ?>;
+    window.categoryValues = <?= json_encode($categoryValues) ?>;
+    window.urgencyLabels = <?= json_encode($urgencyLabels) ?>;
+    window.urgencyValues = <?= json_encode($urgencyValues) ?>;
 </script>
 
+<script src="../assets/js/incidents.js"></script>
     </body>
 </html>
