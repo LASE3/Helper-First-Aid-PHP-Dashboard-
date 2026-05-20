@@ -219,6 +219,7 @@ body {
 
 /* Smaller screens */
 @media (max-width: 800px) {
+
     .sidebar,
     .sidebar:hover {
         width: 70px;
@@ -256,4 +257,9 @@ body {
     .dashboard-content {
         padding: 12px;
     }
+}
+
+.nav-link.active {
+    background: #eff6ff;
+    color: #2563eb;
 }

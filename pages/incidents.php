@@ -253,98 +253,101 @@ $totalIncidents = count($incidents);
         Export CSV
     </a>
 
-    <h3>Incidents List</h3>
+    <h2 class="section-title">Incidents List</h2>
+
     <p>
         Showing <?= htmlspecialchars((string)count($incidents)) ?> incident(s).
     </p>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Device ID</th>
-            <th>Patient</th>
-            <th>Category</th>
-            <th>Urgency</th>
-            <th>Confidence</th>
-            <th>Manual Override</th>
-            <th>Language</th>
-            <th>Input Text</th>
-            <th>Location</th>
-            <th>Images</th>
-            <th>Date</th>
-            <th>Sync</th>
-            <th>Action</th>
-        </tr>
 
-        <?php if (count($incidents) > 0): ?>
-            <?php foreach ($incidents as $row): ?>
-                <tr>
-                    <td><?= htmlspecialchars((string)$row['id']) ?></td>
-                    <td><?= htmlspecialchars((string)($row['device_id'] ?? '')) ?></td>
-                    <td><?= htmlspecialchars((string)($row['patient_name'] ?? '')) ?></td>
-                    <td><?= htmlspecialchars((string)($row['category_name'] ?? $row['category_code'] ?? '')) ?></td>
-                    <td><?= htmlspecialchars((string)($row['urgency_level'] ?? '')) ?></td>
-                    <td>
-                        <?= $row['confidence'] !== null
-                            ? htmlspecialchars(number_format((float)$row['confidence'], 2))
-                            : 'N/A' ?>
-                    </td>
-                    <td><?= ((int)($row['manual_override'] ?? 0) === 1) ? 'Yes' : 'No' ?></td>
-                    <td><?= htmlspecialchars((string)($row['lang'] ?? '')) ?></td>
-                    <td><?= htmlspecialchars((string)($row['input_text'] ?? '')) ?></td>
-                    <td>
-                        <?php if (!empty($row['lat']) && !empty($row['lng'])): ?>
-                            <a target="_blank" href="https://www.google.com/maps?q=<?= htmlspecialchars((string)$row['lat']) ?>,<?= htmlspecialchars((string)$row['lng']) ?>">
-                                Open Map
-                            </a>
-                        <?php else: ?>
-                            No Location
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <?php
-                        $rowImages = $incidentImages[(int)$row['id']] ?? [];
-                        ?>
-
-                        <?php if (count($rowImages) > 0): ?>
-                            <?php foreach ($rowImages as $imagePath): ?>
-                                <img src="../<?= htmlspecialchars((string)$imagePath) ?>" width="70" alt="incident image">
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            No Image
-                        <?php endif; ?>
-                    </td>
-                    <td><?= htmlspecialchars((string)($row['occurred_at'] ?? '')) ?></td>
-                    <td>
-                        <?php if (!empty($row['synced_at'])): ?>
-
-                            <span style="color:green;">
-                                Synced
-                            </span>
-
-                        <?php else: ?>
-
-                            <span style="color:red;">
-                                Pending
-                            </span>
-
-                        <?php endif; ?>
-                    </td>
-                    <td>
-                        <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>">
-                            View
-                        </a>
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        <?php else: ?>
+    <div class="incidents-table-card">
+        <table>
             <tr>
-                <td colspan="14">No incidents found.</td>
+                <th>ID</th>
+                <th>Device ID</th>
+                <th>Patient</th>
+                <th>Category</th>
+                <th>Urgency</th>
+                <th>Confidence</th>
+                <th>Manual Override</th>
+                <th>Language</th>
+                <th>Input Text</th>
+                <th>Location</th>
+                <th>Images</th>
+                <th>Date</th>
+                <th>Sync</th>
+                <th>Action</th>
             </tr>
-        <?php endif; ?>
-    </table>
 
+            <?php if (count($incidents) > 0): ?>
+                <?php foreach ($incidents as $row): ?>
+                    <tr>
+                        <td><?= htmlspecialchars((string)$row['id']) ?></td>
+                        <td><?= htmlspecialchars((string)($row['device_id'] ?? '')) ?></td>
+                        <td><?= htmlspecialchars((string)($row['patient_name'] ?? '')) ?></td>
+                        <td><?= htmlspecialchars((string)($row['category_name'] ?? $row['category_code'] ?? '')) ?></td>
+                        <td><?= htmlspecialchars((string)($row['urgency_level'] ?? '')) ?></td>
+                        <td>
+                            <?= $row['confidence'] !== null
+                                ? htmlspecialchars(number_format((float)$row['confidence'], 2))
+                                : 'N/A' ?>
+                        </td>
+                        <td><?= ((int)($row['manual_override'] ?? 0) === 1) ? 'Yes' : 'No' ?></td>
+                        <td><?= htmlspecialchars((string)($row['lang'] ?? '')) ?></td>
+                        <td><?= htmlspecialchars((string)($row['input_text'] ?? '')) ?></td>
+                        <td>
+                            <?php if (!empty($row['lat']) && !empty($row['lng'])): ?>
+                                <a target="_blank" href="https://www.google.com/maps?q=<?= htmlspecialchars((string)$row['lat']) ?>,<?= htmlspecialchars((string)$row['lng']) ?>">
+                                    Open Map
+                                </a>
+                            <?php else: ?>
+                                No Location
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <?php
+                            $rowImages = $incidentImages[(int)$row['id']] ?? [];
+                            ?>
+
+                            <?php if (count($rowImages) > 0): ?>
+                                <?php foreach ($rowImages as $imagePath): ?>
+                                    <img src="../<?= htmlspecialchars((string)$imagePath) ?>" width="70" alt="incident image">
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                No Image
+                            <?php endif; ?>
+                        </td>
+                        <td><?= htmlspecialchars((string)($row['occurred_at'] ?? '')) ?></td>
+                        <td>
+                            <?php if (!empty($row['synced_at'])): ?>
+
+                                <span style="color:green;">
+                                    Synced
+                                </span>
+
+                            <?php else: ?>
+
+                                <span style="color:red;">
+                                    Pending
+                                </span>
+
+                            <?php endif; ?>
+                        </td>
+                        <td>
+                            <a href="incident_view.php?id=<?= urlencode((string)$row['id']) ?>">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="14">No incidents found.</td>
+                </tr>
+            <?php endif; ?>
+        </table>
+    </div>
     <br>
-    <a href="dashboard.php">Back</a>
+
     <script>
         window.categoryLabels = <?= json_encode($categoryLabels) ?>;
         window.categoryValues = <?= json_encode($categoryValues) ?>;
