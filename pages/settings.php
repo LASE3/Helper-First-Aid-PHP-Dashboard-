@@ -213,7 +213,7 @@ $settings = $stmt->fetch();
     </div>
 
     <br>
-    <a href="dashboard.php">Back</a>
+    <a href="incidents.php">Back</a>
 
 </body>
 

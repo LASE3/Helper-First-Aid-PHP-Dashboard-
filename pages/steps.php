@@ -337,8 +337,7 @@ $steps = $stmt->fetchAll();
     </div>
 
     <br>
-    <a href="dashboard.php">Back</a>
-
+    
 </body>
 
 </html>

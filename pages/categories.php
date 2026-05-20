@@ -139,8 +139,6 @@ $categories = $stmt->fetchAll();
         </table>
     </div>
 
-    <a href="dashboard.php" class="back-link">Back to Dashboard</a>
-
 </body>
 
 </html>

@@ -243,8 +243,6 @@ if (!empty($incident['user_id'])) {
         <?php endif; ?>
     </div>
 
-    <a href="incidents.php">Back to Incidents</a>
-
 </body>
 
 </html>

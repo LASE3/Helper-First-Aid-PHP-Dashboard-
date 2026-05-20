@@ -94,7 +94,7 @@ $permissions = $permStmt->fetchAll();
             <p>You do not have any permissions assigned.</p>
         <?php endif; ?>
         </div>
-        <a href="dashboard.php">Back to Dashboard</a>
+        <a href="incidents.php">Back</a>
 </body>
 
 </html>
