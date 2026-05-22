@@ -42,12 +42,11 @@ foreach ($settingColumns as $column) {
     }
 }
 $hasUserSettingsColumns = count($missingSettingColumns) === 0;
+$hasEmailColumn = app_user_has_column($pdo, 'email');
 
 try {
     if (isset($_POST['update_user'])) {
-        if (function_exists('can') && !can('users.edit') && !can('users.view')) {
-            require_perm('users.edit');
-        }
+        require_perm('users.edit');
 
         $id = (int)($_POST['id'] ?? 0);
         $deviceId = trim($_POST['device_id'] ?? '');
@@ -82,6 +81,11 @@ try {
                 ':notes' => trim($_POST['notes'] ?? ''),
             ];
 
+            if ($hasEmailColumn) {
+                $setParts[] = 'email = :email';
+                $params[':email'] = trim($_POST['email'] ?? '') !== '' ? trim($_POST['email']) : null;
+            }
+
             if ($hasUserSettingsColumns) {
                 $setParts[] = 'language = :language';
                 $setParts[] = 'country_code = :country_code';
@@ -106,9 +110,7 @@ try {
     }
 
     if (isset($_POST['delete_user'])) {
-        if (function_exists('can') && !can('users.delete') && !can('users.view')) {
-            require_perm('users.delete');
-        }
+        require_perm('users.delete');
 
         $id = (int)($_POST['id'] ?? 0);
         if ($id <= 0) {
@@ -187,6 +189,7 @@ $users = $stmt->fetchAll();
                     <tr>
                         <th>ID</th>
                         <th>Name</th>
+                        <?php if ($hasEmailColumn): ?><th>Email</th><?php endif; ?>
                         <th>Age</th>
                         <th>Gender</th>
                         <th>Country Code</th>
@@ -203,6 +206,7 @@ $users = $stmt->fetchAll();
                             <tr>
                                 <td><?= htmlspecialchars((string)$userId) ?></td>
                                 <td><?= htmlspecialchars((string)($user['full_name'] ?? '')) ?></td>
+                                <?php if ($hasEmailColumn): ?><td><?= htmlspecialchars((string)($user['email'] ?? '')) ?></td><?php endif; ?>
                                 <td><?= htmlspecialchars((string)($user['age'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string)($user['sex'] ?? '')) ?></td>
                                 <td><?= htmlspecialchars((string)($user['country_code'] ?? '')) ?></td>
@@ -229,6 +233,7 @@ $users = $stmt->fetchAll();
                                             <div class="form-grid modal-grid">
                                                 <div><label>Device ID</label><input type="text" name="device_id" value="<?= htmlspecialchars((string)($user['device_id'] ?? '')) ?>" required></div>
                                                 <div><label>Full Name</label><input type="text" name="full_name" value="<?= htmlspecialchars((string)($user['full_name'] ?? '')) ?>"></div>
+                                                <?php if ($hasEmailColumn): ?><div><label>Email</label><input type="email" name="email" value="<?= htmlspecialchars((string)($user['email'] ?? '')) ?>"></div><?php endif; ?>
                                                 <div><label>Age</label><input type="number" name="age" value="<?= htmlspecialchars((string)($user['age'] ?? '')) ?>"></div>
                                                 <div><label>Gender</label><input type="text" name="sex" value="<?= htmlspecialchars((string)($user['sex'] ?? '')) ?>"></div>
                                                 <div><label>Blood Type</label><input type="text" name="blood_type" value="<?= htmlspecialchars((string)($user['blood_type'] ?? '')) ?>"></div>
@@ -261,7 +266,7 @@ $users = $stmt->fetchAll();
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="9" class="empty">No users found.</td>
+                            <td colspan="<?= $hasEmailColumn ? 10 : 9 ?>" class="empty">No users found.</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

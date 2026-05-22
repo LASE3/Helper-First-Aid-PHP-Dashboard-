@@ -100,6 +100,12 @@ foreach ($incidents as $index => $incident) {
     $lat = $incident['lat'] ?? null;
     $lng = $incident['lng'] ?? null;
     $locationSource = trim((string)($incident['location_source'] ?? ''));
+    if ($locationSource === 'gps_or_last_known') {
+        $locationSource = 'gps';
+    }
+    if (!in_array($locationSource, ['gps', 'last_known', 'none', ''], true)) {
+        $locationSource = 'none';
+    }
     $notes = trim((string)($incident['notes'] ?? ''));
 
     $errors = [];
