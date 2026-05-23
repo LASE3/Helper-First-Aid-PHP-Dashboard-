@@ -126,7 +126,7 @@ $categories = $stmt->fetchAll();
     <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
     <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
 
-    <link rel="stylesheet" href="../assets/css/categories.css?v=20260520b">
+    <link rel="stylesheet" href="../assets/css/categories.css?v=20260523">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
 

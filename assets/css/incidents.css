@@ -98,6 +98,7 @@
        padding: 20px;
        border-radius: 12px;
        margin-bottom: 20px;
+       box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16);
    }
 
    .dashboard-header h2 {

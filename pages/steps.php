@@ -233,13 +233,16 @@ foreach ($steps as $stepRow) {
     <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
     <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
 
-    <link rel="stylesheet" href="../assets/css/steps.css?v=20260520">
+    <link rel="stylesheet" href="../assets/css/steps.css?v=20260523">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
 
 <body>
 
-    <h2>Steps Dashboard</h2>
+    <div class="page-header">
+        <h2>Steps Dashboard</h2>
+        <p>Manage first-aid guidance steps used by the Flutter app.</p>
+    </div>
 
     <?php if ($message !== ""): ?>
         <div class="message"><?= htmlspecialchars($message) ?></div>

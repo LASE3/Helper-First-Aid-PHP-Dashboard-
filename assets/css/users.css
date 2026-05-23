@@ -187,3 +187,23 @@ button.button {
     gap: 10px;
     margin-top: 18px;
 }
+/* Blue dashboard page header */
+.page-header {
+    background: #2563eb;
+    color: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16);
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 22px;
+    color: #ffffff;
+}
+
+.page-header p {
+    margin: 8px 0 0;
+    color: #eaf1ff;
+}

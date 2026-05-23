@@ -232,7 +232,7 @@ $totalIncidents = count($incidents);
     <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="../assets/css/incidents.css?v=20260520">
+    <link rel="stylesheet" href="../assets/css/incidents.css?v=20260523">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>
 

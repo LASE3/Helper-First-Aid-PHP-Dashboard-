@@ -31,7 +31,7 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- version added to prevent browser cache from showing old CSS -->
-    <link rel="stylesheet" href="../assets/css/dashboard.css?v=20260520">
+    <link rel="stylesheet" href="../assets/css/dashboard.css?v=20260523">
 </head>
 
 <body>
@@ -130,7 +130,7 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
             </div>
         </div>
     </div>
-    <script src="../assets/js/dashboard.js?v=20260520"></script>
+    <script src="../assets/js/dashboard.js?v=20260523"></script>
     <script src="../assets/js/session-timeout.js?v=20260520"></script>
     <div id="globalModalOverlay" class="global-modal-overlay">
         <div class="global-modal-box">

@@ -179,24 +179,29 @@ function user_perm_ids(PDO $pdo, int $adminId): array
   <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
   <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
 
-  <link rel="stylesheet" href="../assets/css/admins.css">
+  <link rel="stylesheet" href="../assets/css/admins.css?v=20260523">
 </head>
 
 <body>
 
-  <div class="box">
+  <div class="page-header">
     <div class="row space-between">
-      <h2>Admins & Permissions</h2>
-      <a href="logout.php">Logout</a>
+      <div>
+        <h2>Admins & Permissions</h2>
+        <p>Create admins, manage access, and control dashboard permissions.</p>
+      </div>
+      <!-- <div class="header-actions">
+        <a href="logout.php">Logout</a>
+      </div> -->
     </div>
-
-    <?php if (!empty($error)): ?><p class="err"><?= htmlspecialchars($error) ?></p><?php endif; ?>
-    <?php if (!empty($success)): ?><p class="ok"><?= htmlspecialchars($success) ?></p><?php endif; ?>
-
-    <?php if (!$hasPhoneColumn): ?>
-      <p class="err">Database patch missing: admin_users.phone does not exist. Run the password reset SQL patch before using phone-based reset.</p>
-    <?php endif; ?>
   </div>
+
+  <?php if (!empty($error)): ?><p class="err"><?= htmlspecialchars($error) ?></p><?php endif; ?>
+  <?php if (!empty($success)): ?><p class="ok"><?= htmlspecialchars($success) ?></p><?php endif; ?>
+
+  <?php if (!$hasPhoneColumn): ?>
+    <p class="err">Database patch missing: admin_users.phone does not exist. Run the password reset SQL patch before using phone-based reset.</p>
+  <?php endif; ?>
 
   <?php if (can('admins.create')): ?>
     <div class="box">

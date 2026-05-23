@@ -75,3 +75,18 @@ function closeGlobalModal() {
 
     document.body.style.overflow = "";
 }
+
+const globalModalOverlay = document.getElementById("globalModalOverlay");
+if (globalModalOverlay) {
+    globalModalOverlay.addEventListener("click", function (event) {
+        if (event.target === globalModalOverlay) {
+            closeGlobalModal();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && globalModalOverlay.classList.contains("active")) {
+            closeGlobalModal();
+        }
+    });
+}
