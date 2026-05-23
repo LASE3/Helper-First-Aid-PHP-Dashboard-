@@ -63,8 +63,8 @@ if (isset($_POST['create_admin'])) {
         if ($hasPhoneColumn) {
           $ins = $pdo->prepare("
             INSERT INTO admin_users (full_name, email, phone, password_hash, role, is_active, created_at)
-            VALUES (?, ?, ?, 'admin', ?, NOW())
-          ");
+            VALUES (?, ?, ?, ?, 'admin', ?, NOW())
+            ");
           $ins->execute([$full_name, $email, $phone, $hash, $is_active]);
         } else {
           $ins = $pdo->prepare("
