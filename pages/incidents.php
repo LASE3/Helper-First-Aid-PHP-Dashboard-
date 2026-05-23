@@ -227,8 +227,10 @@ $totalIncidents = count($incidents);
 <head>
     <meta charset="UTF-8">
     <title>Incidents</title>
-    <link rel="icon" type="image/x-icon" href="../assets/image/logo_circle.ico?v=2">
-    <link rel="shortcut icon" href="../assets/image/logo_circle.ico?v=2" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
+    <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../assets/css/incidents.css?v=20260520">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>

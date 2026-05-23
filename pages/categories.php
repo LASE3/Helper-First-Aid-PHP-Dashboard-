@@ -122,8 +122,10 @@ $categories = $stmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Categories</title>
-    <link rel="icon" type="image/x-icon" href="../assets/image/logo_circle.ico?v=2">
-    <link rel="shortcut icon" href="../assets/image/logo_circle.ico?v=2" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
+    <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
+
     <link rel="stylesheet" href="../assets/css/categories.css?v=20260520b">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
 </head>

@@ -91,8 +91,10 @@ if (!empty($incident['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <title>Incident Details</title>
-    <link rel="icon" type="image/x-icon" href="../assets/image/logo_circle.ico?v=2">
-    <link rel="shortcut icon" href="../assets/image/logo_circle.ico?v=2" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
+    <link rel="shortcut icon" type="image/x-icon" href="../assets/favicon.ico?v=10">
+    <link rel="apple-touch-icon" href="../assets/favicon.png?v=10">
+
     <link rel="stylesheet" href="../assets/css/incident_view.css">
 </head>
 
