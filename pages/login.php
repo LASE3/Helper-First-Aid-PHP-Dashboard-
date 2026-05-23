@@ -63,8 +63,8 @@ if (isset($_POST['login'])) {
 <head>
     <meta charset="UTF-8">
     <title>Admin Login</title>
-    <link rel="icon" type="image/x-icon" href="../assets/logo.ico?v=2">
-    <link rel="shortcut icon" href="../assets/logo.ico?v=2" type="image/x-icon">
+    <link rel="icon" type="image/x-icon" href="../assets/image/logo_circle.ico?v=2">
+    <link rel="shortcut icon" href="../assets/image/logo_circle.ico?v=2" type="image/x-icon">
     <link rel="stylesheet" href="../assets/css/login.css">
 </head>
 

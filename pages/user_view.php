@@ -102,6 +102,8 @@ $systemFields = [
 <head>
     <meta charset="UTF-8">
     <title>User Details</title>
+    <link rel="icon" type="image/x-icon" href="../assets/image/logo_circle.ico?v=2">
+    <link rel="shortcut icon" href="../assets/image/logo_circle.ico?v=2" type="image/x-icon">
     <link rel="stylesheet" href="../assets/css/user_view.css">
 </head>
 
