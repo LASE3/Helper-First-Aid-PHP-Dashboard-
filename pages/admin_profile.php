@@ -57,6 +57,8 @@ $permissions = $permStmt->fetchAll();
 <head>
     <meta charset="UTF-8">
     <title>Admin Profile</title>
+    <link rel="icon" type="image/x-icon" href="../assets/logo.ico?v=2">
+    <link rel="shortcut icon" href="../assets/logo.ico?v=2" type="image/x-icon">
     <link rel="stylesheet" href="../assets/css/admin_profile.css">
 </head>
 

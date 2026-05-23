@@ -175,6 +175,8 @@ function user_perm_ids(PDO $pdo, int $adminId): array
 <head>
   <meta charset="UTF-8">
   <title>Admins</title>
+  <link rel="icon" type="image/x-icon" href="../assets/logo.ico?v=2">
+  <link rel="shortcut icon" href="../assets/logo.ico?v=2" type="image/x-icon">
   <link rel="stylesheet" href="../assets/css/admins.css">
 </head>
 

@@ -25,8 +25,9 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
 <head>
     <meta charset="UTF-8">
     <title>FirstAid Admin Dashboard</title>
+    <link rel="icon" type="image/x-icon" href="../assets/logo.ico?v=2">
+    <link rel="shortcut icon" href="../assets/logo.ico?v=2" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <!-- version added to prevent browser cache from showing old CSS -->
     <link rel="stylesheet" href="../assets/css/dashboard.css?v=20260520">
 </head>

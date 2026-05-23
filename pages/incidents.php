@@ -227,6 +227,8 @@ $totalIncidents = count($incidents);
 <head>
     <meta charset="UTF-8">
     <title>Incidents</title>
+    <link rel="icon" type="image/x-icon" href="../assets/logo.ico?v=2">
+    <link rel="shortcut icon" href="../assets/logo.ico?v=2" type="image/x-icon">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="../assets/css/incidents.css?v=20260520">
     <script src="../assets/js/confirm-actions.js?v=20260520" defer></script>
