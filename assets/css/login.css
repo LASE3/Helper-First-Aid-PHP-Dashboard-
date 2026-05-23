@@ -185,3 +185,23 @@ button.login-btn:hover {
     margin-bottom: 14px;
     font-size: 14px;
 }
+
+.ok {
+    color: #15803d;
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+.dev-otp {
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}

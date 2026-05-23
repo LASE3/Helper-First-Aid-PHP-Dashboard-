@@ -99,7 +99,7 @@ if (isset($_POST['login'])) {
                         </div>
                         <button class="login-btn" type="submit" name="login" value="1">Login</button>
 
-                        <a class="forgot" href="#">Forgot Password?</a>
+                        <a class="forgot" href="forgot_password.php">Forgot Password?</a>
                     </form>
                 </div>
             </div>
