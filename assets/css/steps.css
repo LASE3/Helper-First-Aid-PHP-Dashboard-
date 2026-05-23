@@ -352,3 +352,60 @@ input[type="file"]::file-selector-button:hover {
     margin: 8px 0 0;
     color: #eaf1ff;
 }
+
+
+/* Reliable custom file picker for Add/Edit Step image */
+.file-picker {
+    width: 100%;
+    min-height: 46px;
+    border: 1px solid #d6e0ef;
+    border-radius: 8px;
+    background: #f8fbff;
+    padding: 8px 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.file-picker-input {
+    position: absolute;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0 !important;
+}
+
+.file-picker-button {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 112px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.18s ease, transform 0.18s ease;
+}
+
+.file-picker-button:hover {
+    background: #dbeafe;
+    transform: translateY(-1px);
+}
+
+.file-picker-name {
+    color: #111827;
+    font-size: 14px;
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

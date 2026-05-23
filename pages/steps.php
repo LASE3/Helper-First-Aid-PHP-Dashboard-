@@ -309,11 +309,12 @@ foreach ($steps as $stepRow) {
         <br>
         <br>
         <label>Image</label>
-        <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+        <input class="file-upload-input" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+        <br>
         <br>
         <label>
-            <input type="checkbox" name="is_active" checked>
             Active
+            <input type="checkbox" name="is_active" checked>
         </label>
 
         <button type="submit" name="add" class="small-btn">Add Step</button>
@@ -442,11 +443,11 @@ foreach ($steps as $stepRow) {
                                                 </div>
 
                                                 <label>Replace Image</label>
-                                                <input type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
+                                                <input class="file-upload-input" type="file" name="image" accept=".jpg,.jpeg,.png,.gif,.webp">
 
-                                                <label class="checkbox-label">
-                                                    <input type="checkbox" name="is_active" <?= (int)$row['is_active'] === 1 ? 'checked' : '' ?>>
+                                                <label class="checkbox-label"> <br>
                                                     Active
+                                                    <input type="checkbox" name="is_active" <?= (int)$row['is_active'] === 1 ? 'checked' : '' ?>>
                                                 </label>
 
                                                 <div class="modal-actions">
