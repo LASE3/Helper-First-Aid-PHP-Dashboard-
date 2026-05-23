@@ -168,7 +168,12 @@ if (!empty($incident['user_id'])) {
     </div>
 
     <div class="card">
-        <h3>Patient Profile</h3>
+        <div class="card-head">
+            <h3>Patient Profile</h3>
+            <?php if (!empty($incident['user_id']) && can('users.view')): ?>
+                <a class="btn-link" href="user_view.php?id=<?= urlencode((string)$incident['user_id']) ?>">View Full User Profile</a>
+            <?php endif; ?>
+        </div>
         <table>
             <tr>
                 <th>Full Name</th>

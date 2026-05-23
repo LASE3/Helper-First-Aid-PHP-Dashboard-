@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/guards.php';
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/audit_helper.php';
 
 require_perm('admins.view');
 
@@ -83,6 +84,15 @@ if (isset($_POST['create_admin'])) {
         }
 
         $pdo->commit();
+
+        log_admin_action(
+          $pdo,
+          'create_admin',
+          'admin_user',
+          $newId,
+          'Created admin account for ' . $email
+        );
+
         $success = "The admin account has been created successfully.";
       } catch (Throwable $e) {
         if ($pdo->inTransaction()) {
@@ -112,6 +122,15 @@ if (isset($_POST['update_perms'])) {
         $up->execute([$admin_id, (int)$pid]);
       }
       $pdo->commit();
+
+      log_admin_action(
+        $pdo,
+        'update_admin_permissions',
+        'admin_user',
+        $admin_id,
+        'Updated permissions for admin user ID ' . $admin_id
+      );
+
       $success = "Permissions have been updated.";
     } catch (Throwable $e) {
       if ($pdo->inTransaction()) {

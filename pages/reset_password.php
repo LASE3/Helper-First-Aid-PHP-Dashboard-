@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 session_start();
 require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/audit_helper.php';
 
 $error = "";
 $success = "";
@@ -41,6 +42,14 @@ if (isset($_POST['change_password'])) {
             ")->execute([$resetRowId, $adminId]);
 
             $pdo->commit();
+
+            log_admin_action(
+                $pdo,
+                'reset_admin_password',
+                'admin_user',
+                $adminId,
+                'Admin password was reset through OTP verification.'
+            );
 
             unset(
                 $_SESSION['password_reset_phone'],
