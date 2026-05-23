@@ -8,25 +8,38 @@ require_once __DIR__ . '/../config/database.php';
 require_perm('users.view');
 
 $userId = (int)($_GET['id'] ?? 0);
+$deviceIdParam = trim((string)($_GET['device_id'] ?? $_GET['device'] ?? ''));
 
-if ($userId <= 0) {
+if ($userId <= 0 && $deviceIdParam === '') {
     http_response_code(400);
     die("Invalid user ID.");
 }
 
-$stmt = $pdo->prepare("
-    SELECT *
-    FROM app_users
-    WHERE id = :id
-    LIMIT 1
-");
-$stmt->execute([':id' => $userId]);
+if ($userId > 0) {
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM app_users
+        WHERE id = :id
+        LIMIT 1
+    ");
+    $stmt->execute([':id' => $userId]);
+} else {
+    $stmt = $pdo->prepare("
+        SELECT *
+        FROM app_users
+        WHERE device_id = :device_id
+        LIMIT 1
+    ");
+    $stmt->execute([':device_id' => $deviceIdParam]);
+}
 $user = $stmt->fetch();
 
 if (!$user) {
     http_response_code(404);
     die("User not found.");
 }
+
+$userId = (int)$user['id'];
 
 function value_or_dash(array $row, string $key): string
 {

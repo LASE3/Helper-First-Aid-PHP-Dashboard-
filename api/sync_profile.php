@@ -27,7 +27,12 @@ try {
         respond_json(400, ['success' => false, 'message' => 'device_id is required']);
     }
 
-    $contacts = $data['contacts'] ?? [];
+    $contacts = $data['contacts']
+        ?? $data['emergency_contacts']
+        ?? $data['emergencyContacts']
+        ?? $data['emergency_contact']
+        ?? [];
+
     if (!is_array($contacts)) {
         $contacts = [];
     }
@@ -164,9 +169,29 @@ try {
             continue;
         }
 
-        $contactName = trim((string)($contact['contact_name'] ?? $contact['name'] ?? ''));
-        $phone = trim((string)($contact['phone'] ?? ''));
-        $relation = trim((string)($contact['relation'] ?? ''));
+        $contactName = trim((string)(
+            $contact['contact_name']
+            ?? $contact['contactName']
+            ?? $contact['name']
+            ?? $contact['full_name']
+            ?? ''
+        ));
+
+        $phone = trim((string)(
+            $contact['phone']
+            ?? $contact['phone_number']
+            ?? $contact['phoneNumber']
+            ?? $contact['mobile']
+            ?? $contact['number']
+            ?? ''
+        ));
+
+        $relation = trim((string)(
+            $contact['relation']
+            ?? $contact['relationship']
+            ?? $contact['type']
+            ?? ''
+        ));
 
         if ($contactName === '' && $phone === '') {
             continue;
@@ -188,6 +213,7 @@ try {
         'data' => [
             'user_id' => $userId,
             'device_id' => $deviceId,
+            'contacts_received' => count($contacts),
         ],
     ]);
 } catch (Throwable $e) {

@@ -207,3 +207,26 @@ button.button {
     margin: 8px 0 0;
     color: #eaf1ff;
 }
+
+
+/* Consistent dashboard modal buttons */
+.modal-actions .button,
+.modal-actions button.button {
+    min-width: 120px;
+    text-align: center;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 800;
+    box-shadow: 0 8px 18px rgba(37, 99, 235, .16);
+}
+
+.modal-actions .button.muted {
+    background: #ffffff;
+    color: #1e3a8a;
+    border: 1px solid #bfdbfe;
+    box-shadow: none;
+}
+
+.modal-actions .button.muted:hover {
+    background: #eff6ff;
+}

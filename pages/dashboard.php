@@ -18,6 +18,36 @@ if (!isset($_SESSION['admin'])) {
 
 $adminName = $_SESSION['admin_name'] ?? 'Admin';
 $adminRole = $_SESSION['admin_role'] ?? 'admin';
+
+function safe_frame_page(string $page): string
+{
+    $page = trim(urldecode($page));
+
+    if ($page === '') {
+        return 'incidents.php';
+    }
+
+    $parts = parse_url($page);
+    $path = basename((string)($parts['path'] ?? ''));
+    $query = isset($parts['query']) ? ('?' . $parts['query']) : '';
+
+    if ($path === 'incident_view.php' && !str_contains($query, 'id=')) {
+        return 'incidents.php';
+    }
+
+    if ($path === 'user_view.php' && !str_contains($query, 'id=') && !str_contains($query, 'device_id=') && !str_contains($query, 'device=')) {
+        return 'users.php';
+    }
+
+    if (!preg_match('/^[a-zA-Z0-9_\-]+\.php$/', $path)) {
+        return 'incidents.php';
+    }
+
+    return $path . $query;
+}
+
+$initialFramePage = safe_frame_page((string)($_COOKIE['firstaid_last_page'] ?? 'incidents.php'));
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -112,7 +142,7 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
                 <iframe
                     id="contentFrame"
                     name="contentFrame"
-                    src="<?= htmlspecialchars((string)($_COOKIE['firstaid_last_page'] ?? 'incidents.php')) ?>"
+                    src="<?= htmlspecialchars($initialFramePage, ENT_QUOTES, 'UTF-8') ?>"
                     title="Dashboard content">
                 </iframe>
             </section>
@@ -130,7 +160,7 @@ $adminRole = $_SESSION['admin_role'] ?? 'admin';
             </div>
         </div>
     </div>
-    <script src="../assets/js/dashboard.js?v=20260523"></script>
+    <script src="../assets/js/dashboard.js?v=20260524"></script>
     <script src="../assets/js/session-timeout.js?v=20260520"></script>
     <div id="globalModalOverlay" class="global-modal-overlay">
         <div class="global-modal-box">

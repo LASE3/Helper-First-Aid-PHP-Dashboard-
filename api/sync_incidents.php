@@ -28,7 +28,7 @@ if (!is_array($incidents) || count($incidents) === 0) {
     respond(400, ['success' => false, 'message' => 'incidents array is required and cannot be empty']);
 }
 
-$allowedUrgency = ['low', 'medium', 'high', 'critical', 'extreme'];
+$allowedUrgency = ['low', 'medium', 'high', 'extreme'];
 $results = [];
 $hasErrors = false;
 
@@ -93,8 +93,23 @@ foreach ($incidents as $index => $incident) {
     $occurredAt = trim((string)($incident['occurred_at'] ?? $incident['created_at'] ?? ''));
     $lang = trim((string)($incident['lang'] ?? 'en'));
     $inputText = trim((string)($incident['input_text'] ?? ''));
-    $categoryCode = trim((string)($incident['category_code'] ?? $incident['predicted_category_code'] ?? ''));
-    $urgencyLevel = trim((string)($incident['urgency_level'] ?? $incident['urgency'] ?? ''));
+    $categoryCode = trim((string)(
+        $incident['category_code']
+        ?? $incident['predicted_category_code']
+        ?? $incident['predictedCategoryCode']
+        ?? $incident['categoryCode']
+        ?? $incident['prediction_category_code']
+        ?? ''
+    ));
+    $urgencyLevel = strtolower(trim((string)(
+        $incident['urgency_level']
+        ?? $incident['urgencyLevel']
+        ?? $incident['urgency']
+        ?? ''
+    )));
+    if ($urgencyLevel === 'critical') {
+        $urgencyLevel = 'extreme';
+    }
     $confidence = $incident['confidence'] ?? null;
     $manualOverride = $incident['manual_override'] ?? 0;
     $lat = $incident['lat'] ?? null;
@@ -113,7 +128,7 @@ foreach ($incidents as $index => $incident) {
     if ($deviceId === '') $errors[] = 'device_id is required';
     if ($occurredAt === '') $errors[] = 'created_at/occurred_at is required';
     if ($categoryCode === '') $errors[] = 'predicted_category_code/category_code is required';
-    if ($urgencyLevel !== '' && !in_array($urgencyLevel, $allowedUrgency, true)) $errors[] = 'urgency must be one of: low, medium, high, critical, extreme';
+    if ($urgencyLevel !== '' && !in_array($urgencyLevel, $allowedUrgency, true)) $errors[] = 'urgency must be one of: low, medium, high, extreme';
     if ($confidence !== null && $confidence !== '' && !is_numeric($confidence)) $errors[] = 'confidence must be numeric';
     if ($lat !== null && $lat !== '' && !is_numeric($lat)) $errors[] = 'lat must be numeric';
     if ($lng !== null && $lng !== '' && !is_numeric($lng)) $errors[] = 'lng must be numeric';
