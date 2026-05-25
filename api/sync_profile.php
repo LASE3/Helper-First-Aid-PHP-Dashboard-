@@ -38,7 +38,15 @@ try {
     }
 
     $email = trim((string)($data['email'] ?? ''));
-    $fullName = trim((string)($data['full_name'] ?? ''));
+    $fullName = trim((string)($data['full_name'] ?? $data['name'] ?? ''));
+    $phone = trim((string)($data['phone'] ?? $data['phone_number'] ?? $data['mobile'] ?? ''));
+    $password = (string)($data['password'] ?? '');
+    $questionnaireJson = $data['questionnaire_json'] ?? $data['questionnaire'] ?? $data['survey'] ?? null;
+    if (is_array($questionnaireJson)) {
+        $questionnaireJson = json_encode($questionnaireJson, JSON_UNESCAPED_UNICODE);
+    } elseif ($questionnaireJson !== null) {
+        $questionnaireJson = trim((string)$questionnaireJson);
+    }
     $age = ($data['age'] ?? '') === '' ? null : (int)$data['age'];
     $sex = trim((string)($data['sex'] ?? ''));
     $bloodType = trim((string)($data['blood_type'] ?? ''));
@@ -58,16 +66,61 @@ try {
     $emailCheck->execute();
     $hasEmailColumn = (bool)$emailCheck->fetch();
 
+    $hasPhoneColumn = false;
+    $phoneCheck = $pdo->prepare("SHOW COLUMNS FROM app_users LIKE 'phone'");
+    $phoneCheck->execute();
+    $hasPhoneColumn = (bool)$phoneCheck->fetch();
+
+    $hasPasswordColumn = false;
+    $passwordCheck = $pdo->prepare("SHOW COLUMNS FROM app_users LIKE 'password_hash'");
+    $passwordCheck->execute();
+    $hasPasswordColumn = (bool)$passwordCheck->fetch();
+
+    $hasQuestionnaireColumn = false;
+    $questionnaireCheck = $pdo->prepare("SHOW COLUMNS FROM app_users LIKE 'questionnaire_json'");
+    $questionnaireCheck->execute();
+    $hasQuestionnaireColumn = (bool)$questionnaireCheck->fetch();
+
+    $extraInsertColumns = [];
+    $extraInsertValues = [];
+    $extraUpdateParts = [];
+    $extraParams = [];
+
+    if ($hasPhoneColumn) {
+        $extraInsertColumns[] = 'phone';
+        $extraInsertValues[] = ':phone';
+        $extraUpdateParts[] = 'phone = VALUES(phone)';
+        $extraParams[':phone'] = $phone !== '' ? $phone : null;
+    }
+
+    if ($hasPasswordColumn && $password !== '') {
+        $extraInsertColumns[] = 'password_hash';
+        $extraInsertValues[] = ':password_hash';
+        $extraUpdateParts[] = 'password_hash = VALUES(password_hash)';
+        $extraParams[':password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+    }
+
+    if ($hasQuestionnaireColumn) {
+        $extraInsertColumns[] = 'questionnaire_json';
+        $extraInsertValues[] = ':questionnaire_json';
+        $extraUpdateParts[] = 'questionnaire_json = VALUES(questionnaire_json)';
+        $extraParams[':questionnaire_json'] = ($questionnaireJson !== null && $questionnaireJson !== '') ? (string)$questionnaireJson : null;
+    }
+
+    $extraColumnsSql = $extraInsertColumns ? ', ' . implode(', ', $extraInsertColumns) : '';
+    $extraValuesSql = $extraInsertValues ? ', ' . implode(', ', $extraInsertValues) : '';
+    $extraUpdateSql = $extraUpdateParts ? ",\n                " . implode(",\n                ", $extraUpdateParts) : '';
+
     $pdo->beginTransaction();
 
     if ($hasEmailColumn) {
         $stmt = $pdo->prepare("
             INSERT INTO app_users
                 (device_id, email, full_name, age, sex, blood_type, allergies, conditions, medications, notes,
-                 language, country_code, emergency_number, ambulance_number, fire_number)
+                 language, country_code, emergency_number, ambulance_number, fire_number{$extraColumnsSql})
             VALUES
                 (:device_id, :email, :full_name, :age, :sex, :blood_type, :allergies, :conditions, :medications, :notes,
-                 :language, :country_code, :emergency_number, :ambulance_number, :fire_number)
+                 :language, :country_code, :emergency_number, :ambulance_number, :fire_number{$extraValuesSql})
             ON DUPLICATE KEY UPDATE
                 email = VALUES(email),
                 full_name = VALUES(full_name),
@@ -82,7 +135,7 @@ try {
                 country_code = VALUES(country_code),
                 emergency_number = VALUES(emergency_number),
                 ambulance_number = VALUES(ambulance_number),
-                fire_number = VALUES(fire_number),
+                fire_number = VALUES(fire_number){$extraUpdateSql},
                 updated_at = CURRENT_TIMESTAMP
         ");
 
@@ -102,15 +155,15 @@ try {
             ':emergency_number' => $emergencyNumber !== '' ? $emergencyNumber : '911',
             ':ambulance_number' => $ambulanceNumber !== '' ? $ambulanceNumber : '193',
             ':fire_number' => $fireNumber !== '' ? $fireNumber : '199',
-        ]);
+        ] + $extraParams);
     } else {
         $stmt = $pdo->prepare("
             INSERT INTO app_users
                 (device_id, full_name, age, sex, blood_type, allergies, conditions, medications, notes,
-                 language, country_code, emergency_number, ambulance_number, fire_number)
+                 language, country_code, emergency_number, ambulance_number, fire_number{$extraColumnsSql})
             VALUES
                 (:device_id, :full_name, :age, :sex, :blood_type, :allergies, :conditions, :medications, :notes,
-                 :language, :country_code, :emergency_number, :ambulance_number, :fire_number)
+                 :language, :country_code, :emergency_number, :ambulance_number, :fire_number{$extraValuesSql})
             ON DUPLICATE KEY UPDATE
                 full_name = VALUES(full_name),
                 age = VALUES(age),
@@ -124,7 +177,7 @@ try {
                 country_code = VALUES(country_code),
                 emergency_number = VALUES(emergency_number),
                 ambulance_number = VALUES(ambulance_number),
-                fire_number = VALUES(fire_number),
+                fire_number = VALUES(fire_number){$extraUpdateSql},
                 updated_at = CURRENT_TIMESTAMP
         ");
 
@@ -143,7 +196,7 @@ try {
             ':emergency_number' => $emergencyNumber !== '' ? $emergencyNumber : '911',
             ':ambulance_number' => $ambulanceNumber !== '' ? $ambulanceNumber : '193',
             ':fire_number' => $fireNumber !== '' ? $fireNumber : '199',
-        ]);
+        ] + $extraParams);
     }
 
     $getUserId = $pdo->prepare("SELECT id FROM app_users WHERE device_id = :device_id LIMIT 1");
