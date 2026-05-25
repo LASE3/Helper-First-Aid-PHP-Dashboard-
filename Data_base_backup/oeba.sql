@@ -1665,19 +1665,48 @@ FROM
 
 -- oeba app user phone/auth patch
 -- Run this once in phpMyAdmin if any of these columns are missing.
-
-ALTER TABLE app_users
-    ADD COLUMN IF NOT EXISTS phone VARCHAR(30) NULL AFTER email,
-    ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255) NULL AFTER phone,
-    ADD COLUMN IF NOT EXISTS profile_image_path VARCHAR(255) NULL AFTER password_hash,
-    ADD COLUMN IF NOT EXISTS questionnaire_json LONGTEXT NULL AFTER notes;
+ALTER TABLE
+  app_users
+ADD
+  COLUMN IF NOT EXISTS phone VARCHAR(30) NULL
+AFTER
+  email,
+ADD
+  COLUMN IF NOT EXISTS password_hash VARCHAR(255) NULL
+AFTER
+  phone,
+ADD
+  COLUMN IF NOT EXISTS profile_image_path VARCHAR(255) NULL
+AFTER
+  password_hash,
+ADD
+  COLUMN IF NOT EXISTS questionnaire_json LONGTEXT NULL
+AFTER
+  notes;
 
 -- Optional: set/update test user password.
 -- Password: Lase32004x@
-UPDATE app_users
-SET password_hash = '$2y$12$g1M7ctuyaH/L8AGp6J21VO3uTg0rEzs6FQCr9LdP8SFstUN1jjdIa'
-WHERE email IN ('admin@gmail.com', 'admin1@gmail.com');
+UPDATE
+  app_users
+SET
+  password_hash = '$2y$12$g1M7ctuyaH/L8AGp6J21VO3uTg0rEzs6FQCr9LdP8SFstUN1jjdIa'
+WHERE
+  email IN ('admin@gmail.com', 'admin1@gmail.com');
 
+CREATE TABLE IF NOT EXISTS app_password_reset_otps (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  otp_hash VARCHAR(255) NOT NULL,
+  expires_at DATETIME NOT NULL,
+  verified TINYINT(1) NOT NULL DEFAULT 0,
+  verified_at DATETIME NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_phone (phone),
+  INDEX idx_user_id (user_id),
+  INDEX idx_expires_at (expires_at)
+);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */
 ;
