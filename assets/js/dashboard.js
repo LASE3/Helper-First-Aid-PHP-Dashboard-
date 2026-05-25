@@ -63,8 +63,12 @@ navLinks.forEach(link => {
 });
 
 if (contentFrame) {
-    const savedPage = normalizeFramePage(localStorage.getItem('firstaid_last_page') || contentFrame.getAttribute('src'));
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedPage = urlParams.get('page');
+    const frameSrc = contentFrame.getAttribute('src');
+    const savedPage = normalizeFramePage(requestedPage || frameSrc || localStorage.getItem('firstaid_last_page'));
     contentFrame.src = savedPage;
+    setLastPage(savedPage);
     setActiveLinkByHref(savedPage);
 
     contentFrame.addEventListener('load', () => {

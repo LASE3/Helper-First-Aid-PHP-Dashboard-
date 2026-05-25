@@ -46,7 +46,12 @@ function safe_frame_page(string $page): string
     return $path . $query;
 }
 
-$initialFramePage = safe_frame_page((string)($_COOKIE['firstaid_last_page'] ?? 'incidents.php'));
+$requestedPage = (string)($_GET['page'] ?? '');
+if ($requestedPage !== '') {
+    $initialFramePage = safe_frame_page($requestedPage);
+} else {
+    $initialFramePage = safe_frame_page((string)($_COOKIE['firstaid_last_page'] ?? 'incidents.php'));
+}
 
 ?>
 <!DOCTYPE html>
@@ -62,6 +67,13 @@ $initialFramePage = safe_frame_page((string)($_COOKIE['firstaid_last_page'] ?? '
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- version added to prevent browser cache from showing old CSS -->
     <link rel="stylesheet" href="../assets/css/dashboard.css?v=20260523">
+    <script>
+        // Prevent the dashboard from being opened inside its own iframe.
+        // This fixes the duplicated sidebar/topbar bug after clicking Dashboard from detail pages.
+        if (window.top !== window.self) {
+            window.top.location.href = window.location.href;
+        }
+    </script>
 </head>
 
 <body>

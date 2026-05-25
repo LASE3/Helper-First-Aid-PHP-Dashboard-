@@ -132,7 +132,7 @@ $systemFields = [
             </div>
             <div class="header-actions">
                 <a class="btn secondary" href="users.php">Back to Users</a>
-                <a class="btn" href="dashboard.php">Dashboard</a>
+                <a class="btn" href="dashboard.php?page=users.php" target="_top">Dashboard</a>
             </div>
         </div>
 
