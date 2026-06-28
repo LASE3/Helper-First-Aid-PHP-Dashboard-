@@ -5,6 +5,14 @@ It is designed to manage emergency first aid content, users, incidents, and sync
 
 The dashboard works as the backend control panel for the Helper First Aid mobile app, allowing admins to update first aid categories, emergency steps, and incident-related data through a simple web interface.
 
+---
+
+## Project Status
+
+This dashboard is functionally complete as part of the Helper First Aid graduation project, but it is still under development and may receive future improvements, security updates, UI refinements, and additional admin features.
+
+---
+
 ## Features
 
 * Admin login and authentication
