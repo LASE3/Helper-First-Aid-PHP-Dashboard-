@@ -23,7 +23,7 @@ This dashboard is functionally complete as part of the Helper First Aid graduati
 * REST API integration with the Flutter mobile application
 * MySQL database connection
 * Incident synchronization between the mobile app and dashboard
-* Organized admin interface for emergency content management
+* Organized the admin interface for emergency content management
 
 ## Technologies Used
 
@@ -79,6 +79,19 @@ git clone https://github.com/LASE3/Helper-First-Aid-PHP-Dashboard-.git
 http://localhost/Helper-First-Aid-PHP-Dashboard-
 ```
 
+---
+
+
+## Repository Access
+
+This repository is public for viewing and downloading purposes.  
+Direct edits, pushes, and branch creation in the original repository are restricted to the project owner/collaborators only.
+
+---
+
 ## Status
 
 This project was developed for academic purposes as part of a graduation project.
+
+
+
